@@ -1,21 +1,18 @@
 # Box
 
-**TODO: Add description**
+Box is my presonal toolbox of module I like to have in my projects.
+
+## Kernel module extras
+
+The toolbox includes some extra function to Kernel module like Enum and List (under `Box.Enum` and `Box.List`).
+
 
 ## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `box` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:box, "~> 0.1.0"}
+    {:box, git: "https://github.com/nicklayb/box_ex.git", tag: "0.1.0"}
   ]
 end
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/box>.
-
