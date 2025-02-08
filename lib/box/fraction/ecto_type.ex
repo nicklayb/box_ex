@@ -1,10 +1,12 @@
-if Code.loaded?(Ecto.Type) do
-  defmodule Fraction.EctoType do
+if Code.ensure_loaded?(Ecto.Type) do
+  defmodule Box.Fraction.EctoType do
     @moduledoc """
     Ecto type for Fraction. The Fraction type is expected to 
     be stored as a `fraction` type which is a composite Postgres
     type.
     """
+
+    alias Box.Fraction
     use Ecto.Type
 
     @spec type() :: :fraction

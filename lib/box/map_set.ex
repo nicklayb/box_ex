@@ -5,6 +5,14 @@ defmodule Box.MapSet do
 
   @doc """
   Removes the item if present, adds if missing
+
+  ## Examples
+
+    iex> Box.MapSet.toggle(MapSet.new([1, 2]), 1)
+    MapSet.new([2])
+
+    iex> Box.MapSet.toggle(MapSet.new([1, 2]), 3)
+    MapSet.new([1, 2, 3])
   """
   @spec toggle(MapSet.t(), any()) :: MapSet.t()
   def toggle(%MapSet{} = map_set, item) do

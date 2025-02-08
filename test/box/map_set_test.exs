@@ -1,5 +1,6 @@
 defmodule Box.MapSetTest do
   use Box.BaseCase
+  doctest Box.MapSet
 
   describe "toggle/2" do
     test "add a value if missing, removes otherwise" do

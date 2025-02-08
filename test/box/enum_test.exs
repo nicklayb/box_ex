@@ -1,5 +1,6 @@
 defmodule Box.EnumTest do
   use Box.BaseCase
+  doctest Box.Enum
 
   describe "replace/3" do
     test "replace value in enumerable" do
@@ -15,6 +16,12 @@ defmodule Box.EnumTest do
                  2 -> :two
                  3 -> :three
                end)
+    end
+  end
+
+  describe "field/2" do
+    test "gets field of inner map" do
+      assert [1, 2, nil, 3] = Box.Enum.field([%{value: 1}, %{value: 2}, %{}, %{value: 3}], :value)
     end
   end
 end

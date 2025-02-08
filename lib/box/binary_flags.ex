@@ -40,6 +40,4 @@ defmodule Box.BinaryFlags do
 
     flags
   end
-
-  def to_flags(_avilable_flags, integer) when is_integer(integer), do: []
 end

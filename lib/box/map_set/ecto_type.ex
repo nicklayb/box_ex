@@ -1,5 +1,5 @@
-if Code.loaded?(Ecto.ParameterizedType) do
-  defmodule MapSet.EctoType do
+if Code.ensure_loaded?(Ecto.ParameterizedType) do
+  defmodule Box.MapSet.EctoType do
     @moduledoc """
     Ecto type to persist MapSets of a given value type
     """

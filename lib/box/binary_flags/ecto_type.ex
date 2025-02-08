@@ -1,4 +1,4 @@
-if Code.loaded?(Ecto.ParameterizedType) do
+if Code.ensure_loaded?(Ecto.ParameterizedType) do
   defmodule Box.BinaryFlags.EctoType do
     @moduledoc """
     Binary flags type for integer (binary based) flag list.
@@ -6,6 +6,8 @@ if Code.loaded?(Ecto.ParameterizedType) do
     New flags *must* but added to the bottom of the list and not in between.
     """
     use Ecto.ParameterizedType
+
+    alias Box.BinaryFlags
 
     def type(_), do: :integer
 

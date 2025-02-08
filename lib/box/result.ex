@@ -37,6 +37,10 @@ defmodule Box.Result do
   @spec unwrap!(t(any(), any())) :: any()
   def unwrap!({:ok, result}), do: result
 
+  def unwrap!(other) do
+    raise ArgumentError, "expected {:ok, _} result, got #{inspect(other)}"
+  end
+
   @doc "Maps a success value"
   @spec map(t(any(), any()), (any() -> any())) :: t(any(), any())
   def map({:ok, result}, function), do: {:ok, function.(result)}
@@ -67,6 +71,14 @@ defmodule Box.Result do
     {:error, error}
   end
 
+  def log(:error, _, error_function) do
+    nil
+    |> then(error_function)
+    |> Logger.error()
+
+    :error
+  end
+
   @doc "Applies a function on success result but without keeping the previous result"
   @spec tap(t(any(), any()), (any() -> any()), (any() -> any())) :: t(any(), any())
   def tap(result, success_function, error_function \\ &Function.identity/1)
@@ -81,9 +93,20 @@ defmodule Box.Result do
     {:error, error}
   end
 
+  def tap(:error, _, error_function) do
+    error_function.(nil)
+    :error
+  end
+
   @doc "Returns success value if success, fallbacks otherwise"
   @spec with_default(t(any(), any()), any()) :: any()
   def with_default({:ok, result}, _), do: result
+
+  def with_default({:error, value}, fallback_function) when is_function(fallback_function, 1),
+    do: fallback_function.(value)
+
+  def with_default(:error, fallback_function) when is_function(fallback_function, 1),
+    do: fallback_function.(nil)
 
   def with_default(_, fallback_function) when is_function(fallback_function, 0),
     do: fallback_function.()
