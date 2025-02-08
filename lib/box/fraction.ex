@@ -98,9 +98,6 @@ defmodule Box.Fraction do
         numerator
         |> String.to_integer()
         |> new(String.to_integer(denominator))
-
-      _ ->
-        raise ArgumentError, message: "Malformed fraction #{string}"
     end
   end
 
