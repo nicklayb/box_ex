@@ -23,8 +23,9 @@ defmodule Box.MixProject do
 
   defp deps do
     [
-      {:assertions, "~> 0.20.1", only: :test},
-      {:ecto, "~> 3.5.0", only: :test}
+      {:assertions, "~> 0.20", only: :test},
+      {:ecto, "~> 3.5", only: :test},
+      {:phoenix_pubsub, "~> 2.0", only: :test}
     ]
   end
 end
