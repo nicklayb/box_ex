@@ -29,6 +29,7 @@ defmodule Box.Config do
   defp to_bool("false"), do: false
 
   defp mutate({:hardcoded, value}, _function), do: value
+  defp mutate(nil, _function), do: nil
   defp mutate(value, function), do: function.(value)
 
   defp get_env(key, options) do
@@ -74,5 +75,8 @@ defmodule Box.Config do
 
   defp current_env(_options) do
     Config.config_env()
+  rescue
+    _ ->
+      Process.get(:current_env)
   end
 end
