@@ -1,10 +1,18 @@
 defmodule Box.Config do
   require Config
 
+  def int!(key, options \\ []) do
+    int(key, Keyword.put(options, :required, true))
+  end
+
   def int(key, options \\ []) do
     key
     |> get_env(options)
     |> mutate(&String.to_integer/1)
+  end
+
+  def uri!(key, options \\ []) do
+    uri(key, Keyword.put(options, :required, true))
   end
 
   def uri(key, options \\ []) do
@@ -13,10 +21,18 @@ defmodule Box.Config do
     |> mutate(&URI.parse/1)
   end
 
+  def bool!(key, options \\ []) do
+    bool(key, Keyword.put(options, :required, true))
+  end
+
   def bool(key, options \\ []) do
     key
     |> get_env(options)
     |> mutate(&to_bool/1)
+  end
+
+  def get!(key, options \\ []) do
+    get(key, Keyword.put(options, :required, true))
   end
 
   def get(key, options \\ []) do

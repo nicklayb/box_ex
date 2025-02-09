@@ -26,7 +26,11 @@ defmodule Box.ConfigTest do
       assert nil == Box.Config.get("XANADU")
 
       assert_raise(System.EnvError, fn ->
-        Box.Config.get("XANADU", required: true, test: "test")
+        Box.Config.get!("XANADU")
+      end)
+
+      assert_raise(System.EnvError, fn ->
+        Box.Config.get("XANADU", required: true)
       end)
     end
   end
@@ -46,12 +50,12 @@ defmodule Box.ConfigTest do
       assert 9001 == Box.Config.int("POME_SORT", default: "9001", test: "1001")
       assert nil == Box.Config.int("POME_SORT")
 
-      assert_raise(ArgumentError, fn ->
-        Box.Config.int("INVALID_PORT", required: true)
+      assert_raise(System.EnvError, fn ->
+        Box.Config.int!("POME_SORT")
       end)
 
       assert_raise(System.EnvError, fn ->
-        Box.Config.int("POME_SORT", required: true, test: "test")
+        Box.Config.int("POME_SORT", required: true)
       end)
     end
   end
@@ -84,6 +88,10 @@ defmodule Box.ConfigTest do
       assert nil == Box.Config.uri("BAD_HOST")
 
       assert_raise(System.EnvError, fn ->
+        Box.Config.uri!("BAD_HOST")
+      end)
+
+      assert_raise(System.EnvError, fn ->
         Box.Config.uri("BAD_HOST", required: true)
       end)
     end
@@ -105,6 +113,10 @@ defmodule Box.ConfigTest do
 
       assert true == Box.Config.bool("EST_ACTIF", default: "true", test: false)
       assert nil == Box.Config.bool("EST_ACTIVE")
+
+      assert_raise(System.EnvError, fn ->
+        Box.Config.bool!("EST_ACTIF")
+      end)
 
       assert_raise(System.EnvError, fn ->
         Box.Config.bool("EST_ACTIF", required: true)
