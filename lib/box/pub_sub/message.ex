@@ -29,8 +29,7 @@ if Code.ensure_loaded?(Phoenix.PubSub) do
           message when is_atom(message) -> {message, nil}
         end
 
-      %Message{message: message, params: params, topic: topic, from: from}
+      %Message{message: message, params: params, topic: topic, from: from, metadata: metadata}
     end
   end
 end
-
