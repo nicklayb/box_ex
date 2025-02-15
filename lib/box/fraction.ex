@@ -139,9 +139,9 @@ defmodule Box.Fraction do
 end
 
 if Code.loaded?(Phoenix.HTML.Safe) do
-  defimpl Phoenix.HTML.Safe, for: Fraction do
-    def to_iodata(%Fraction{} = fraction) do
-      Fraction.to_string(fraction)
+  defimpl Phoenix.HTML.Safe, for: Box.Fraction do
+    def to_iodata(%Box.Fraction{} = fraction) do
+      Box.Fraction.to_string(fraction)
     end
   end
 end

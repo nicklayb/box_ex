@@ -112,4 +112,34 @@ defmodule Box.FractionTest do
       assert :gt == Fraction.compare(Fraction.new(2, 1), Fraction.new(1, 2))
     end
   end
+
+  describe "Phoenix.Html.Safe.to_iodata" do
+    test "converts integer fraction" do
+      assert "43" =
+               43
+               |> Fraction.new()
+               |> Phoenix.HTML.Safe.to_iodata()
+    end
+
+    test "converts fraction over 1 as float" do
+      assert "3.4" =
+               3.4
+               |> Fraction.new()
+               |> Phoenix.HTML.Safe.to_iodata()
+    end
+
+    test "converts fraction under 1 as fraction" do
+      assert "7/11" =
+               {7, 11}
+               |> Fraction.new()
+               |> Phoenix.HTML.Safe.to_iodata()
+    end
+
+    test "converts full fraction as 1" do
+      assert "1" =
+               {11, 11}
+               |> Fraction.new()
+               |> Phoenix.HTML.Safe.to_iodata()
+    end
+  end
 end
