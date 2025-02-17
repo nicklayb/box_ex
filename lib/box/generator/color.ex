@@ -4,7 +4,7 @@ defmodule Box.Generator.Color do
 
   ## Options
 
-  - `alpha`: Range of possible alpha to generate. Range is expected to be from integer value like `0..100` in order to have from 0.0 to 1.0
+  - `alpha`: Range of possible alpha to generate. Range is expected to be from integer value like `0..100` in order to have from 0.0 to 1.0. Fixed value can be passed as int
   - `type`: `:hsl`, `:hex` or `:rgb`
 
   ### Type specific options
@@ -49,7 +49,7 @@ defmodule Box.Generator.Color do
       Enum.map([hue: @degree, saturation: @percent, lightness: @percent], fn {parameter, default} ->
         options
         |> Keyword.get(parameter, default)
-        |> Enum.random()
+        |> random()
       end)
 
     "hsl(#{hue}, #{saturation}%, #{lightness}%#{alpha})"
@@ -61,7 +61,7 @@ defmodule Box.Generator.Color do
       Enum.map([:red, :green, :blue], fn color ->
         options
         |> Keyword.get(color, @hex_range)
-        |> Enum.random()
+        |> random()
       end)
 
     "rgb(#{red}, #{green}, #{blue}#{alpha})"
@@ -71,7 +71,7 @@ defmodule Box.Generator.Color do
 
   defp generate_alpha(:hex, range) do
     range
-    |> Enum.random()
+    |> random()
     |> Integer.to_string(16)
     |> String.pad_leading(2, "0")
   end
@@ -82,4 +82,7 @@ defmodule Box.Generator.Color do
 
   defp apply_with_alpha(string, nil, _), do: string
   defp apply_with_alpha(string, alpha, function), do: function.(string, alpha)
+
+  defp random(integer) when is_integer(integer), do: integer
+  defp random(range), do: Enum.random(range)
 end

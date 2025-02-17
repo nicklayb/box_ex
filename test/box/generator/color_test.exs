@@ -63,6 +63,14 @@ defmodule Box.Generator.ColorTest do
       assert "hsl(10, 10%, 10%)" =
                ColorGenerator.generate(
                  type: :hsl,
+                 hue: 10,
+                 saturation: 10,
+                 lightness: 10
+               )
+
+      assert "hsl(10, 10%, 10%)" =
+               ColorGenerator.generate(
+                 type: :hsl,
                  hue: 10..10,
                  saturation: 10..10,
                  lightness: 10..10
@@ -93,6 +101,14 @@ defmodule Box.Generator.ColorTest do
     end
 
     test "generates rgb color with fixed value" do
+      assert "rgb(10, 10, 10)" =
+               ColorGenerator.generate(
+                 type: :rgb,
+                 red: 10,
+                 green: 10,
+                 blue: 10
+               )
+
       assert "rgb(10, 10, 10)" =
                ColorGenerator.generate(
                  type: :rgb,
