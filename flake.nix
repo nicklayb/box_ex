@@ -15,7 +15,7 @@
           devShells.default = pkgs.mkShell {
             buildInputs = with pkgs; [ 
               elixir
-              erlang_26
+              erlang_27
               inotify-tools
             ];
           };

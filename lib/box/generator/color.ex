@@ -6,6 +6,20 @@ defmodule Box.Generator.Color do
 
   - `alpha`: Range of possible alpha to generate. Range is expected to be from integer value like `0..100` in order to have from 0.0 to 1.0
   - `type`: `:hsl`, `:hex` or `:rgb`
+
+  ### Type specific options
+
+  #### RGB
+
+  - `red`: Range to pick for red
+  - `blue`: Range to pick for blue
+  - `green`: Range to pick for green
+
+  #### HSL
+
+  - `hue`: Range to pick for hue
+  - `saturation`: Range to pick for saturation
+  - `lightness`: Range to pick for lightness
   """
   @behaviour Box.Generator
 
@@ -25,23 +39,30 @@ defmodule Box.Generator.Color do
     |> Keyword.put(:length, @hex_color_length)
     |> Box.Generator.Hexadecimal.generate()
     |> apply_with_alpha(alpha, &(&1 <> &2))
+    |> String.upcase()
   end
 
   @degree 0..359
   @percent 0..100
   def generate(:hsl, alpha, options) do
-    hue = Enum.random(@degree)
-    saturation = Enum.random(@percent)
-    lightness = Enum.random(@percent)
+    [hue, saturation, lightness] =
+      Enum.map([hue: @degree, saturation: @percent, lightness: @percent], fn {parameter, default} ->
+        options
+        |> Keyword.get(parameter, default)
+        |> Enum.random()
+      end)
 
-    "hsl(#{hue}, #{staturation}%, #{lightness}%#{alpha})"
+    "hsl(#{hue}, #{saturation}%, #{lightness}%#{alpha})"
   end
 
   @hex_range 0..255
   def generate(:rgb, alpha, options) do
-    red = Enum.random(@hex_range)
-    green = Enum.random(@hex_range)
-    blue = Enum.random(@hex_range)
+    [red, blue, green] =
+      Enum.map([:red, :green, :blue], fn color ->
+        options
+        |> Keyword.get(color, @hex_range)
+        |> Enum.random()
+      end)
 
     "rgb(#{red}, #{green}, #{blue}#{alpha})"
   end
@@ -50,8 +71,9 @@ defmodule Box.Generator.Color do
 
   defp generate_alpha(:hex, range) do
     range
-    |> Enum.randome()
+    |> Enum.random()
     |> Integer.to_string(16)
+    |> String.pad_leading(2, "0")
   end
 
   defp generate_alpha(rgb_or_hsl, range) when rgb_or_hsl in [:hsl, :rgb] do
