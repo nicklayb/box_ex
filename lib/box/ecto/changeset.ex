@@ -5,6 +5,8 @@ if Code.ensure_loaded?(Ecto.Changeset) do
     """
     import Ecto.Changeset
 
+    require Ecto.Query
+
     @type touch_timestamp_option :: {:key, atom()} | {:setter, atom()}
 
     @doc """
@@ -79,5 +81,55 @@ if Code.ensure_loaded?(Ecto.Changeset) do
     end
 
     def update_valid(changeset, _), do: changeset
+
+    @type generate_slug_option ::
+            {:source, atom()}
+            | {:field, atom()}
+            | {:exists?, (String.t() -> boolean())}
+            | {:separator, String.t()}
+    @doc """
+    Generates a slug from another field on the schema
+    """
+    @spec generate_slug(Ecto.Changeset.t(), [generate_slug_option()]) :: Ecto.Changeset.t()
+    def generate_slug(%Ecto.Changeset{} = changeset, options) do
+      source_field = Keyword.fetch!(options, :source)
+      destination_field = Keyword.get(options, :field, :slug)
+
+      name = Ecto.Changeset.get_field(changeset, source_field)
+
+      slug = generate_unique_slug(name, options)
+
+      Ecto.Changeset.put_change(changeset, destination_field, slug)
+    end
+
+    defp generate_unique_slug(name, options, incrementer \\ nil) do
+      new_slug = new_slug(name, incrementer, options)
+      exists? = Keyword.fetch!(options, :exists?)
+
+      if exists?.(new_slug) do
+        generate_unique_slug(name, options, next_incrementer(incrementer))
+      else
+        new_slug
+      end
+    end
+
+    @default_separator "-"
+    defp new_slug(name, incrementer, options) do
+      separator = Keyword.get(options, :separator, @default_separator)
+
+      name
+      |> String.downcase()
+      |> String.replace(~r/[^a-z0-9\s]+/, "")
+      |> String.replace(~r/\s+/, separator)
+      |> put_incrementer(incrementer, separator)
+    end
+
+    defp put_incrementer(string, nil, _), do: string
+
+    defp put_incrementer(string, incrementer, separator),
+      do: string <> separator <> to_string(incrementer)
+
+    defp next_incrementer(nil), do: 1
+    defp next_incrementer(integer), do: integer + 1
   end
 end
