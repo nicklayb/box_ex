@@ -151,6 +151,8 @@ defmodule Box.Color do
 
   @type to_hex_option :: {:with_alpha, boolean()}
   @spec to_hex(t(), [to_hex_option()]) :: String.t()
+  def to_hex(color, options \\ [])
+
   def to_hex(%Color{format: :rgb, value: {red, green, blue}, alpha: alpha}, options) do
     case {alpha, Keyword.get(options, :with_alpha, false)} do
       {@max_percent, false} ->

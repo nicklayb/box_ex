@@ -103,7 +103,7 @@ if Code.ensure_loaded?(Ecto.Changeset) do
     end
 
     defp generate_unique_slug(name, options, incrementer \\ nil) do
-      new_slug = new_slug(name, incrementer, options)
+      new_slug = Box.String.to_slug(name, Keyword.put(options, :incrementer, incrementer))
       exists? = Keyword.fetch!(options, :exists?)
 
       if exists?.(new_slug) do
@@ -112,22 +112,6 @@ if Code.ensure_loaded?(Ecto.Changeset) do
         new_slug
       end
     end
-
-    @default_separator "-"
-    defp new_slug(name, incrementer, options) do
-      separator = Keyword.get(options, :separator, @default_separator)
-
-      name
-      |> String.downcase()
-      |> String.replace(~r/[^a-z0-9\s]+/, "")
-      |> String.replace(~r/\s+/, separator)
-      |> put_incrementer(incrementer, separator)
-    end
-
-    defp put_incrementer(string, nil, _), do: string
-
-    defp put_incrementer(string, incrementer, separator),
-      do: string <> separator <> to_string(incrementer)
 
     defp next_incrementer(nil), do: 1
     defp next_incrementer(integer), do: integer + 1
