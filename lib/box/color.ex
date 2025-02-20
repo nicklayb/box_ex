@@ -149,6 +149,11 @@ defmodule Box.Color do
     end
   end
 
+  @spec put_alpha(t(), alpha()) :: t()
+  def put_alpha(%Color{} = color, alpha) when is_percent(alpha) do
+    %Color{color | alpha: alpha}
+  end
+
   @type to_hex_option :: {:with_alpha, boolean()}
   @spec to_hex(t(), [to_hex_option()]) :: String.t()
   def to_hex(color, options \\ [])
@@ -281,4 +286,10 @@ defmodule Box.Color do
   end
 
   defp decode_format(_, _), do: nil
+
+  def range(:hue), do: 1..@max_degree
+  def range(:saturation), do: 1..@max_percent
+  def range(:lightness), do: 1..@max_percent
+  def range(:alpha), do: 1..@max_percent
+  def range(color) when color in ~w(red green blue)a, do: 1..@max_hex
 end

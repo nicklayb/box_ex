@@ -21,68 +21,52 @@ defmodule Box.Generator.Color do
   - `saturation`: Range to pick for saturation
   - `lightness`: Range to pick for lightness
   """
+  alias Box.Color
   @behaviour Box.Generator
 
   @impl Box.Generator
   def generate(options) do
     {color_type, options} = Keyword.pop!(options, :type)
-    alpha_option = Keyword.get(options, :alpha)
+    alpha_option = Keyword.get(options, :alpha, 100)
 
-    alpha = generate_alpha(color_type, alpha_option)
-
-    generate(color_type, alpha, options)
+    generate(color_type, random(alpha_option), options)
   end
 
-  @hex_color_length 6
-  def generate(:hex, alpha, options) do
-    options
-    |> Keyword.put(:length, @hex_color_length)
-    |> Box.Generator.Hexadecimal.generate()
-    |> apply_with_alpha(alpha, &(&1 <> &2))
-    |> String.upcase()
-  end
-
-  @degree 0..359
-  @percent 0..100
   def generate(:hsl, alpha, options) do
     [hue, saturation, lightness] =
-      Enum.map([hue: @degree, saturation: @percent, lightness: @percent], fn {parameter, default} ->
+      Enum.map([:hue, :saturation, :lightness], fn parameter ->
         options
-        |> Keyword.get(parameter, default)
+        |> Keyword.get_lazy(parameter, fn -> Color.range(parameter) end)
         |> random()
       end)
 
-    "hsl(#{hue}, #{saturation}%, #{lightness}%#{alpha})"
+    {hue, saturation, lightness}
+    |> Color.hsl!(alpha)
+    |> stringify(options)
   end
 
-  @hex_range 0..255
   def generate(:rgb, alpha, options) do
     [red, blue, green] =
       Enum.map([:red, :green, :blue], fn color ->
         options
-        |> Keyword.get(color, @hex_range)
+        |> Keyword.get_lazy(color, fn -> Color.range(color) end)
         |> random()
       end)
 
-    "rgb(#{red}, #{green}, #{blue}#{alpha})"
+    {red, blue, green}
+    |> Color.rgb!(alpha)
+    |> stringify(options)
   end
-
-  defp generate_alpha(_, nil), do: ""
-
-  defp generate_alpha(:hex, range) do
-    range
-    |> random()
-    |> Integer.to_string(16)
-    |> String.pad_leading(2, "0")
-  end
-
-  defp generate_alpha(rgb_or_hsl, range) when rgb_or_hsl in [:hsl, :rgb] do
-    " / #{Enum.random(range) / 100}"
-  end
-
-  defp apply_with_alpha(string, nil, _), do: string
-  defp apply_with_alpha(string, alpha, function), do: function.(string, alpha)
 
   defp random(integer) when is_integer(integer), do: integer
   defp random(range), do: Enum.random(range)
+
+  defp stringify(%Color{} = color, options) do
+    case Keyword.get(options, :format, :raw) do
+      :raw -> color
+      :hex -> Color.to_hex(color)
+      :hsl -> Color.to_hsl(color)
+      :rgb -> Color.to_rgb(color)
+    end
+  end
 end
