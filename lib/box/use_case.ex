@@ -31,20 +31,30 @@ if Code.ensure_loaded?(Ecto.Multi) do
       end
     end
 
-    def execute(module, params, options) do
-      {transaction_options, options} = Keyword.pop(options, :transaction, [])
-      run = Keyword.fetch!(options, :run)
+    @type run_function :: (Ecto.Multi.t(), Keyword.t() ->
+                             {:ok, any()} | {:error, any()} | {:error, any(), any(), any()})
+    @type input_option ::
+            {:transaction, Keyword.t()}
+            | {:run, run_function()}
+            | {:after_run?, boolean()}
+    @spec execute(module(), params(), [input_option()]) ::
+            {:ok, any()} | :ignore | {:error, any()}
+    def execute(module, params, input_options) do
+      {transaction_options, options_without_transaction} =
+        Keyword.pop(input_options, :transaction, [])
+
+      {run, options} = Keyword.pop!(options_without_transaction, :run)
 
       Logger.info("[#{inspect(module)}] [execute] [#{inspect(options)}] #{inspect(params)}")
-      start_time = now()
+      start_time = Box.Timer.now()
 
       with {:ok, new_params} <- module.validate(params, options),
            {:ok, %Ecto.Multi{} = multi} <- build_multi(module, new_params, options),
            {:ok, result} <- run.(multi, transaction_options) do
-        end_time = now()
+        end_time = Box.Timer.now()
 
         Logger.info(
-          "[#{inspect(module)}] [success] [#{inspect(options)}] [#{format_duration(start_time, end_time)}] #{inspect(params)}"
+          "[#{inspect(module)}] [success] [#{inspect(options)}] [#{Box.Integer.to_duration_string(start_time, end_time)}] #{inspect(params)}"
         )
 
         options = Keyword.put(options, :params, params)
@@ -55,6 +65,11 @@ if Code.ensure_loaded?(Ecto.Multi) do
 
         {:ok, module.return(result, options)}
       else
+        :ignore ->
+          Logger.info("[#{inspect(module)}] [ignore] #{inspect(options)} [#{inspect(params)}]")
+
+          :ignore
+
         error ->
           Logger.error(
             "[#{inspect(module)}] [error] #{inspect(options)} [#{inspect(params)}] #{inspect(error)}"
