@@ -20,6 +20,17 @@ defmodule Box.Map do
   end
 
   @doc """
+  Puts a new value in a map. The provided needs to be an atom
+  though it'll automatically be converted to a string if the map is
+  string keyed.
+  """
+  @spec put_new(map(), atom(), any()) :: map()
+  def put_new(map, key, value) do
+    key = cast_key(map, key)
+    Map.put_new(map, key, value)
+  end
+
+  @doc """
   Gets a value in a map from key. The provided needs to be an atom
   though it'll automatically be converted to a string if the map is
   string keyed.

@@ -1,6 +1,26 @@
 defmodule Box.MapTest do
   use Box.BaseCase
 
+  describe "put_new/3" do
+    test "puts a new value depending on key type" do
+      assert %{key: :value} == Box.Map.put_new(%{}, :key, :value)
+      assert %{key: :value} == Box.Map.put_new(%{key: :value}, :key, :other)
+
+      assert %{key: :value, other_key: :other_value} ==
+               Box.Map.put_new(%{key: :value}, :other_key, :other_value)
+
+      assert %{"key" => :value, "other_key" => :other_value} ==
+               Box.Map.put_new(%{"key" => :value}, :other_key, :other_value)
+
+      assert %{"key" => :value, "other_key" => :other_value} ==
+               Box.Map.put_new(
+                 %{"key" => :value, "other_key" => :other_value},
+                 :other_key,
+                 :another_value
+               )
+    end
+  end
+
   describe "put/3" do
     test "puts value depending on key type" do
       assert %{key: :value} == Box.Map.put(%{}, :key, :value)
