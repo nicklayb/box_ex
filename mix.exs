@@ -26,7 +26,8 @@ defmodule Box.MixProject do
       {:assertions, "~> 0.20", only: [:dev, :test]},
       {:ecto, "~> 3.12.5", optional: true},
       {:phoenix_pubsub, "~> 2.0", optional: true},
-      {:phoenix_html, "~> 4.0", optional: true}
+      {:phoenix_html, "~> 4.0", optional: true},
+      {:gettext, "~> 0.26.2", optional: true}
     ]
   end
 end

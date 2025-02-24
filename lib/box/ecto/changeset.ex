@@ -1,4 +1,4 @@
-if Code.ensure_loaded?(Ecto.Changeset) do
+if Code.ensure_loaded?(Ecto.Changeset) and Code.ensure_loaded?(Gettext) do
   defmodule Box.Ecto.Changeset do
     @moduledoc """
     Ecto changeset helper functions.
@@ -45,6 +45,29 @@ if Code.ensure_loaded?(Ecto.Changeset) do
       Box.Ecto.Changeset.update_valid(changeset, fn changeset ->
         update_change(changeset, field, hash_function)
       end)
+    end
+
+    @type format_error_option :: {:gettext, module()}
+    @doc "Formats a changeset error"
+    @spec format_error({atom(), {String.t(), Keyword.t()}} | {String.t(), Keyword.t()}, [
+            format_error_option()
+          ]) ::
+            String.t()
+    def format_error(error, options \\ [])
+
+    def format_error({_field_name, {_message, _options} = error}, options),
+      do: format_error(error, options)
+
+    def format_error({message, options}, format_options) do
+      gettext = Keyword.fetch!(format_options, :gettext)
+
+      case Keyword.get(options, :count) do
+        nil ->
+          Gettext.dgettext(gettext, "errors", message, options)
+
+        count ->
+          Gettext.dngettext(gettext, "errors", message, message, count, options)
+      end
     end
 
     @doc "Trims fields values in changeset"
