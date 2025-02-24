@@ -2,7 +2,7 @@ defmodule Box.Color do
   @full_alpha 100
   alias Box.Color
 
-  defstruct [:format, :value, alpha: @full_alpha]
+  defstruct [:format, :value, :source, alpha: @full_alpha]
 
   @type percent :: 0..100
   @type hex :: 0..255
@@ -15,9 +15,12 @@ defmodule Box.Color do
 
   @type format :: :hsl | :rgb
 
+  @type source :: format() | :hex
+
   @type t :: %Color{
           format: format(),
           value: hsl() | rgb(),
+          source: source(),
           alpha: alpha()
         }
 
@@ -187,11 +190,31 @@ defmodule Box.Color do
   @spec to_css(t(), [to_css_option()]) :: String.t()
   def to_css(color, options \\ [])
 
-  def to_css(%Color{format: :hsl, value: {hue, saturation, lightness}, alpha: alpha}, options) do
+  def to_css(%Color{source: :hex} = color, options) do
+    to_hex(color, options)
+  end
+
+  def to_css(%Color{source: :rgb} = color, options) do
+    to_css_rgb(color, options)
+  end
+
+  def to_css(%Color{source: :hsl} = color, options) do
+    to_css_hsl(color, options)
+  end
+
+  def to_css(%Color{format: :hsl} = color, options) do
+    to_css_hsl(color, options)
+  end
+
+  def to_css(%Color{format: :rgb} = color, options) do
+    to_css_rgb(color, options)
+  end
+
+  def to_css_hsl(%Color{value: {hue, saturation, lightness}, alpha: alpha}, options) do
     "hsl(#{hue}, #{saturation}%, #{lightness}%#{alpha_to_string(alpha, options)})"
   end
 
-  def to_css(%Color{format: :rgb, value: {red, green, blue}, alpha: alpha}, options) do
+  def to_css_rgb(%Color{value: {red, green, blue}, alpha: alpha}, options) do
     "rgb(#{red}, #{green}, #{blue}#{alpha_to_string(alpha, options)})"
   end
 
@@ -212,10 +235,13 @@ defmodule Box.Color do
 
   @spec parse!(String.t()) :: t()
   def parse!("rgb" <> _ = string) do
-    with :error <- parse_rgb_with_alpha!(string),
-         :error <- parse_rgb!(string) do
-      raise ArgumentError, "invalid RGB string"
-    end
+    color =
+      with :error <- parse_rgb_with_alpha!(string),
+           :error <- parse_rgb!(string) do
+        raise ArgumentError, "invalid RGB string"
+      end
+
+    %Color{color | source: :rgb}
   end
 
   @hsl_css_regex ~r/^hsl?\(([0-9]{1,3})(deg)?, *([0-9]{1,3})%?, *([0-9]{1,3})%?(, *(.*))?\)$/
@@ -233,15 +259,17 @@ defmodule Box.Color do
       Enum.map([hue, saturation, lightness], &String.to_integer/1)
 
     alpha = parse_alpha!(maybe_alpha)
-    hsl!({hue_int, saturation_int, lightness_int}, alpha)
+    color = hsl!({hue_int, saturation_int, lightness_int}, alpha)
+    %Color{color | source: :hsl}
   end
 
   def parse!("#" <> hex) do
-    rgb_from_hex!(hex)
+    parse!(hex)
   end
 
   def parse!(hex) do
-    rgb_from_hex!(hex)
+    color = rgb_from_hex!(hex)
+    %Color{color | source: :hex}
   end
 
   @rgb_css_regex ~r/^rgb\(([0-9]{1,3}), *([0-9]{1,3}), *([0-9]{1,3})\)$/
