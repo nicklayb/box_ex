@@ -9,6 +9,19 @@ defmodule Box.Map do
   """
 
   @doc """
+  Gets first entry that matches in the map
+  """
+  @spec get_first(map(), [atom()]) :: {atom(), any()} | nil
+  def get_first(map, keys) do
+    Enum.find_value(keys, fn key ->
+      case get(map, key) do
+        nil -> false
+        value -> {key, value}
+      end
+    end)
+  end
+
+  @doc """
   Puts a value in a map. The provided needs to be an atom
   though it'll automatically be converted to a string if the map is
   string keyed.

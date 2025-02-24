@@ -1,6 +1,17 @@
 defmodule Box.MapTest do
   use Box.BaseCase
 
+  describe "get_first/2" do
+    test "gets first value that matches" do
+      assert {:first, 1} == Box.Map.get_first(%{first: 1}, [:first, :second])
+      assert {:second, 2} == Box.Map.get_first(%{second: 2}, [:first, :second])
+      assert nil == Box.Map.get_first(%{third: 2}, [:first, :second])
+      assert {:first, 1} == Box.Map.get_first(%{"first" => 1}, [:first, :second])
+      assert {:second, 2} == Box.Map.get_first(%{"second" => 2}, [:first, :second])
+      assert nil == Box.Map.get_first(%{"third" => 2}, [:first, :second])
+    end
+  end
+
   describe "put_new/3" do
     test "puts a new value depending on key type" do
       assert %{key: :value} == Box.Map.put_new(%{}, :key, :value)
