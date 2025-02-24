@@ -236,6 +236,10 @@ defmodule Box.Color do
     hsl!({hue_int, saturation_int, lightness_int}, alpha)
   end
 
+  def parse!("#" <> hex) do
+    rgb_from_hex!(hex)
+  end
+
   def parse!(hex) do
     rgb_from_hex!(hex)
   end

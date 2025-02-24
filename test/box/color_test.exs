@@ -174,6 +174,8 @@ defmodule Box.ColorTest do
     end
 
     test "parse hex string" do
+      assert %Color{format: :rgb, value: {252, 50, 74}, alpha: 100} = Color.parse!("#fc324a")
+      assert %Color{format: :rgb, value: {252, 50, 74}, alpha: 100} = Color.parse!("fc324a")
       assert %Color{format: :rgb, value: {252, 50, 74}, alpha: 100} = Color.parse!("FC324A")
       assert %Color{format: :rgb, value: {252, 50, 74}, alpha: 50} = Color.parse!("FC324A7F")
     end
