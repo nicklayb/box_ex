@@ -17,6 +17,9 @@ defmodule Box.ColorTest do
       assert %Color{format: :rgb, value: {79, 193, 59}, alpha: 100} =
                Color.rgb_from_hex!("4FC13B")
 
+      assert %Color{format: :rgb, value: {79, 193, 59}, alpha: 100} =
+               Color.rgb_from_hex!("4fc13b")
+
       assert %Color{format: :rgb, value: {79, 193, 59}, alpha: 33} =
                Color.rgb_from_hex!("4FC13B54")
     end

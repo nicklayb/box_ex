@@ -43,7 +43,10 @@ defmodule Box.Color do
 
   @spec rgb_from_hex!(String.t()) :: t()
   def rgb_from_hex!(hex) do
-    <<red::8, green::8, blue::8, maybe_alpha::binary>> = Base.decode16!(hex)
+    <<red::8, green::8, blue::8, maybe_alpha::binary>> =
+      hex
+      |> String.upcase()
+      |> Base.decode16!()
 
     alpha =
       case maybe_alpha do
