@@ -6,6 +6,7 @@ defmodule Box.Integer do
     h: 60,
     d: 24
   ]
+  @unit_keys Keyword.keys(@units)
 
   @spec to_duration_string(integer()) :: String.t()
   def to_duration_string(start_time, end_time), do: to_duration_string(end_time - start_time)
@@ -28,6 +29,21 @@ defmodule Box.Integer do
     "#{round(duration)}#{unit}"
   end
 
+  def to_duration_string_with_unit(integer, :us), do: to_duration_string(integer)
+
+  def to_duration_string_with_unit(integer, unit) when unit in @unit_keys do
+    multiplier =
+      Enum.reduce_while(@units, 1, fn {current_unit, multiplier}, acc ->
+        if current_unit == unit do
+          {:halt, acc * multiplier}
+        else
+          {:cont, acc * multiplier}
+        end
+      end)
+
+    to_duration_string(integer * multiplier)
+  end
+
   @duration_string_regex ~r/^([0-9]+)([a-z]{1,2})?$/
   @doc "Converts a duration string like 1s to milliseconds"
   @spec from_duration_string(String.t()) :: non_neg_integer()
@@ -44,7 +60,6 @@ defmodule Box.Integer do
     end
   end
 
-  @unit_keys Keyword.keys(@units)
   defp from_duration_string(amount, unit) when is_binary(amount) and is_binary(unit) do
     amount_int = String.to_integer(amount)
     unit_atom = cast_unit(unit)
