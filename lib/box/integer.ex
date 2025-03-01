@@ -40,17 +40,15 @@ defmodule Box.Integer do
         from_duration_string(amount, "")
 
       _ ->
-        {:error, :invalid}
+        raise "Invalid string #{inspect(string)}"
     end
   end
 
   @unit_keys Keyword.keys(@units)
   defp from_duration_string(amount, unit) when is_binary(amount) and is_binary(unit) do
     amount_int = String.to_integer(amount)
-
-    with {:ok, unit_atom} <- cast_unit(unit) do
-      from_duration_string(amount_int, unit_atom)
-    end
+    unit_atom = cast_unit(unit)
+    from_duration_string(amount_int, unit_atom)
   end
 
   defp from_duration_string(amount, :us) when is_integer(amount), do: amount
@@ -73,10 +71,10 @@ defmodule Box.Integer do
   defp cast_unit(string) do
     case Enum.find(@unit_keys, &(to_string(&1) == string)) do
       nil ->
-        {:error, :invalid_unit}
+        raise "Invalid unit #{inspect(string)}"
 
       unit ->
-        {:ok, unit}
+        unit
     end
   end
 end
