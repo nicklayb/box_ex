@@ -89,18 +89,22 @@ if Code.ensure_loaded?(Phoenix.PubSub) do
         message_or_messages
         |> List.wrap()
         |> Enum.each(fn message ->
-          message =
-            if dispatcher == Box.PubSub.Dispatcher or
-                 Keyword.get(options, :raw, false) do
-              metadata = Keyword.get(options, :metadata, nil)
-              {topic, message, metadata}
-            else
-              message
-            end
-
-          Phoenix.PubSub.broadcast(server, topic, message, dispatcher)
+          broadcast_message(server, topic, message, dispatcher, options)
         end)
       end)
+    end
+
+    defp broadcast_message(server, topic, message, dispatcher, options) do
+      message =
+        if dispatcher == Box.PubSub.Dispatcher or
+             Keyword.get(options, :raw, false) do
+          metadata = Keyword.get(options, :metadata, nil)
+          {topic, message, metadata}
+        else
+          message
+        end
+
+      Phoenix.PubSub.broadcast(server, topic, message, dispatcher)
     end
 
     def subscribe(server, topic_or_topics, _options \\ []) do

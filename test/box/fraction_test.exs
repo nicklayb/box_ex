@@ -2,6 +2,7 @@ defmodule Box.FractionTest do
   use Box.BaseCase
 
   alias Box.Fraction
+  alias Phoenix.HTML.Safe, as: HtmlSafe
 
   describe "new/1" do
     test "creates from a tuple" do
@@ -118,28 +119,28 @@ defmodule Box.FractionTest do
       assert "43" =
                43
                |> Fraction.new()
-               |> Phoenix.HTML.Safe.to_iodata()
+               |> HtmlSafe.to_iodata()
     end
 
     test "converts fraction over 1 as float" do
       assert "3.4" =
                3.4
                |> Fraction.new()
-               |> Phoenix.HTML.Safe.to_iodata()
+               |> HtmlSafe.to_iodata()
     end
 
     test "converts fraction under 1 as fraction" do
       assert "7/11" =
                {7, 11}
                |> Fraction.new()
-               |> Phoenix.HTML.Safe.to_iodata()
+               |> HtmlSafe.to_iodata()
     end
 
     test "converts full fraction as 1" do
       assert "1" =
                {11, 11}
                |> Fraction.new()
-               |> Phoenix.HTML.Safe.to_iodata()
+               |> HtmlSafe.to_iodata()
     end
   end
 end

@@ -21,8 +21,9 @@ defmodule Box.Generator.Color do
   - `saturation`: Range to pick for saturation
   - `lightness`: Range to pick for lightness
   """
-  alias Box.Color
   @behaviour Box.Generator
+
+  alias Box.Color
 
   @impl Box.Generator
   def generate(options) do

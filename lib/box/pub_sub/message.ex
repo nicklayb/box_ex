@@ -3,9 +3,9 @@ if Code.ensure_loaded?(Phoenix.PubSub) do
     @moduledoc """
     Pub sub message wrapping structure
     """
-    defstruct [:message, :params, :from, :topic, :metadata]
-
     alias Box.PubSub.Message
+
+    defstruct [:message, :params, :from, :topic, :metadata]
 
     @type message :: atom()
     @type input_message :: atom() | {message(), any()}

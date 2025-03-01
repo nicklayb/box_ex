@@ -5,9 +5,9 @@ if Code.ensure_loaded?(Ecto.Type) do
     be stored as a `fraction` type which is a composite Postgres
     type.
     """
+    use Ecto.Type
 
     alias Box.Fraction
-    use Ecto.Type
 
     @spec type() :: :fraction
     def type, do: :fraction

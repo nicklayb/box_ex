@@ -1,8 +1,8 @@
 if Code.ensure_loaded?(Ecto.Repo) do
   defmodule Box.Ecto.Pagination.Page do
-    defstruct [:results, :query, :has_next_page, :limit, :offset, :sort_by, :index]
-
     alias Box.Ecto.Pagination.Page
+
+    defstruct [:results, :query, :has_next_page, :limit, :offset, :sort_by, :index]
 
     @type t :: %Page{
             results: any(),

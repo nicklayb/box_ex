@@ -1,7 +1,7 @@
 defmodule Box.Color do
-  @full_alpha 100
   alias Box.Color
 
+  @full_alpha 100
   defstruct [:format, :value, :source, alpha: @full_alpha]
 
   @type percent :: 0..100
