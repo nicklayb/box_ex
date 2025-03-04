@@ -81,7 +81,7 @@ defmodule Box.Integer do
     amount * multiplier
   end
 
-  defp cast_unit(""), do: {:ok, :us}
+  defp cast_unit(""), do: :us
 
   defp cast_unit(string) do
     case Enum.find(@unit_keys, &(to_string(&1) == string)) do
