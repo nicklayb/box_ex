@@ -4,8 +4,10 @@ defmodule Box.Cache do
   @type value :: any()
   @type record_option :: {:expiration, integer() | :never}
   @type record :: {key(), value(), [record_option()]}
+  @type match :: [tuple()]
 
-  defp select(cache, match_spec) do
+  @spec select(cache(), match()) :: [any()]
+  def select(cache, match_spec) do
     :ets.select(cache, match_spec)
   end
 
@@ -59,7 +61,9 @@ defmodule Box.Cache do
     ]
   end
 
-  @spec memoize(cache(), key(), [insert_option()], (-> value())) :: value()
+  @type memoize_option :: {:cache_match, (any() -> boolean())}
+
+  @spec memoize(cache(), key(), [insert_option() | memoize_option()], (-> value())) :: value()
   def memoize(cache, key, options \\ [], function) do
     case get(cache, key) do
       {:ok, value} ->
@@ -67,8 +71,22 @@ defmodule Box.Cache do
 
       {:error, :not_found} ->
         result = function.()
-        insert(cache, {key, result}, options)
+
+        if should_cache?(result, options) do
+          insert(cache, {key, result}, options)
+        end
+
         result
+    end
+  end
+
+  defp should_cache?(result, options) do
+    case Keyword.get(options, :cache_match) do
+      function when is_function(function, 1) ->
+        function.(result)
+
+      _ ->
+        true
     end
   end
 end

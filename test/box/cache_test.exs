@@ -91,5 +91,49 @@ defmodule Box.CacheTest do
         assert 2 == Process.get(:invoked)
       end)
     end
+
+    test "memoizes if cache matches" do
+      function = fn ->
+        Box.Support.Process.update(:invoked, 1, &(&1 + 1))
+        {:ok, 2112}
+      end
+
+      key = :some_key
+
+      assert {:ok, 2112} ==
+               Cache.memoize(@name, key, [cache_match: &Box.Result.succeeded?/1], function)
+
+      wait_until(fn ->
+        assert {:ok, {:ok, 2112}} == Cache.get(@name, key)
+      end)
+
+      assert {:ok, 2112} ==
+               Cache.memoize(@name, key, [cache_match: &Box.Result.succeeded?/1], function)
+
+      assert {:ok, 2112} ==
+               Cache.memoize(@name, key, [cache_match: &Box.Result.succeeded?/1], function)
+
+      assert 1 == Process.get(:invoked)
+    end
+
+    test "does not memoize if cache doesn't match" do
+      function = fn ->
+        Box.Support.Process.update(:invoked, 1, &(&1 + 1))
+        {:error, :not_found}
+      end
+
+      key = :some_key
+
+      assert {:error, :not_found} ==
+               Cache.memoize(@name, key, [cache_match: &Box.Result.succeeded?/1], function)
+
+      assert {:error, :not_found} ==
+               Cache.memoize(@name, key, [cache_match: &Box.Result.succeeded?/1], function)
+
+      assert {:error, :not_found} ==
+               Cache.memoize(@name, key, [cache_match: &Box.Result.succeeded?/1], function)
+
+      assert 3 == Process.get(:invoked)
+    end
   end
 end
