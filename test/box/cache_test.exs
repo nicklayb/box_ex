@@ -1,6 +1,8 @@
 defmodule Box.CacheTest do
   use Box.BaseCase, async: false
 
+  require Assertions
+
   alias Box.Cache
 
   @name TestCache
@@ -8,6 +10,27 @@ defmodule Box.CacheTest do
   setup do
     start_supervised!({Box.Cache.Server, name: @name})
     :ok
+  end
+
+  describe "all/1" do
+    test "gets all cached values" do
+      assert [] == Cache.all(@name)
+      insert_sync(@name, {:key, :first})
+      Assertions.assert_lists_equal([{:key, :first, [expiration: :never]}], Cache.all(@name))
+
+      insert_sync(@name, {:key, :overrides})
+      Assertions.assert_lists_equal([{:key, :overrides, [expiration: :never]}], Cache.all(@name))
+
+      insert_sync(@name, {:another_key, :value})
+
+      Assertions.assert_lists_equal(
+        [
+          {:key, :overrides, [expiration: :never]},
+          {:another_key, :value, [expiration: :never]}
+        ],
+        Cache.all(@name)
+      )
+    end
   end
 
   describe "get/2" do
@@ -135,5 +158,13 @@ defmodule Box.CacheTest do
 
       assert 3 == Process.get(:invoked)
     end
+  end
+
+  defp insert_sync(cache, {key, value} = record, options \\ []) do
+    Cache.insert(cache, record, options)
+
+    wait_until(fn ->
+      assert {:ok, ^value} = Cache.get(cache, key)
+    end)
   end
 end

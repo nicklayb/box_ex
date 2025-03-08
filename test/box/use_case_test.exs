@@ -20,7 +20,11 @@ defmodule Box.UseCaseTest do
 
     @impl Box.UseCase
     def run(%Ecto.Multi{} = multi, params, options) do
-      Ecto.Multi.put(multi, :step, {params, options})
+      if Keyword.get(options, :fake_bad_run?, false) do
+        :bad_run
+      else
+        Ecto.Multi.put(multi, :step, {params, options})
+      end
     end
 
     @impl Box.UseCase
@@ -127,6 +131,17 @@ defmodule Box.UseCaseTest do
     test "raises when transaction fails" do
       assert_raise(RuntimeError, fn ->
         execute!(TestUseCase, %{valid?: true}, run: fn _, _ -> {:error, :broken_stuff} end)
+      end)
+
+      refute_receive({:after_run, _, _})
+    end
+
+    test "raises when run doesn't return an ecto.multi" do
+      assert_raise(RuntimeError, fn ->
+        execute!(TestUseCase, %{valid?: true},
+          fake_bad_run?: true,
+          run: fn _, _ -> {:error, :broken_stuff} end
+        )
       end)
 
       refute_receive({:after_run, _, _})

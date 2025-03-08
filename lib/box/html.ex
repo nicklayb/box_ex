@@ -26,11 +26,7 @@ defmodule Box.Html do
   def class(initial, {function, if_true, if_false}) when is_function(function, 0),
     do: class(initial, {function.(), if_true, if_false})
 
-  def class("", ""), do: ""
-
   def class("", class) when is_binary(class), do: class
-
-  def class(initial, ""), do: initial
 
   def class(initial, class) when is_binary(class), do: initial <> " " <> class
 

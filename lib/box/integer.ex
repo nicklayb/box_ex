@@ -8,7 +8,7 @@ defmodule Box.Integer do
   ]
   @unit_keys Keyword.keys(@units)
 
-  @spec to_duration_string(integer()) :: String.t()
+  @spec to_duration_string(integer(), integer()) :: String.t()
   def to_duration_string(start_time, end_time), do: to_duration_string(end_time - start_time)
 
   @spec to_duration_string(integer()) :: String.t()
