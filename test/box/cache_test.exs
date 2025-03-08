@@ -1,9 +1,9 @@
 defmodule Box.CacheTest do
   use Box.BaseCase, async: false
 
-  require Assertions
-
   alias Box.Cache
+
+  require Assertions
 
   @name TestCache
 
