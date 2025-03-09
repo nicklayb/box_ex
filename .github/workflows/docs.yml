@@ -8,15 +8,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: erlef/setup-beam@v1
+      - name: "Setup Beam"
+        uses: erlef/setup-beam@v1
         with:
           elixir-version: '1.17.0'
           otp-version: '26.0'
-      - name: Build docs
-        uses: lee-dohm/generate-elixir-docs@v1
-      - name: Publish to Pages
-        uses: peaceiris/actions-gh-pages@v1.0.1
-        env:
-          ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-          PUBLISH_DIR: ./doc
-          PUBLISH_BRANCH: gh-pages
+
+      - name: "Install dependencies"
+        run: mix deps.get
+
+      - name: "Generates documentation"
+        run: mix docs
+
+      - name: "Setup Pages"
+        uses: actions/configure-pages@v3
+
+      - name: "Upload artifact"
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: 'docs'
+
+      - name: "Deploy to GitHub Pages"
+        id: deployment
+        uses: actions/deploy-pages@v2'
