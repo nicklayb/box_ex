@@ -1,5 +1,7 @@
 # Box
 
+[Documentation](https://nboisvert.com/box_ex/api-reference.html)
+
 Box is my presonal toolbox of module I like to have in my projects.
 
 ## Kernel module extras
