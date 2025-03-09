@@ -12,7 +12,7 @@ defmodule Box.Ecto.ChangesetTest do
       field(:another_slug, :string)
     end
 
-    def changeset(params), do: Ecto.Changeset.cast(%TestUser{}, params, [:title])
+    def changeset(user \\ %TestUser{}, params), do: Ecto.Changeset.cast(user, params, [:title])
   end
 
   describe "generate_slug/2" do
@@ -45,6 +45,18 @@ defmodule Box.Ecto.ChangesetTest do
                  field: :another_slug,
                  exists?: &exists_in_process?(&1, :another_slug)
                )
+    end
+
+    test "doesn't generate a slug if the name didn't change" do
+      changeset = TestUser.changeset(%TestUser{title: "Title"}, %{})
+
+      assert %Ecto.Changeset{changes: changes} =
+               BoxChangeset.generate_slug(changeset,
+                 source: :title,
+                 exists?: &exists_in_process?(&1, :slug)
+               )
+
+      assert changes == %{}
     end
   end
 

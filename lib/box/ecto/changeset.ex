@@ -118,11 +118,15 @@ if Code.ensure_loaded?(Ecto.Changeset) and Code.ensure_loaded?(Gettext) do
       source_field = Keyword.fetch!(options, :source)
       destination_field = Keyword.get(options, :field, :slug)
 
-      name = Ecto.Changeset.get_field(changeset, source_field)
+      case Ecto.Changeset.get_change(changeset, source_field) do
+        nil ->
+          changeset
 
-      slug = generate_unique_slug(name, options)
+        name ->
+          slug = generate_unique_slug(name, options)
 
-      Ecto.Changeset.put_change(changeset, destination_field, slug)
+          Ecto.Changeset.put_change(changeset, destination_field, slug)
+      end
     end
 
     defp generate_unique_slug(name, options, incrementer \\ nil) do
