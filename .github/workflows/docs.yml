@@ -1,3 +1,10 @@
+name: Publish to Github Pages
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 on:
   push:
     branches:
@@ -30,4 +37,4 @@ jobs:
 
       - name: "Deploy to GitHub Pages"
         id: deployment
-        uses: actions/deploy-pages@v2'
+        uses: actions/deploy-pages@v2
