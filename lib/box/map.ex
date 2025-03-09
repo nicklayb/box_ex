@@ -44,6 +44,17 @@ defmodule Box.Map do
   end
 
   @doc """
+  Puts a new lazy value in a map. The provided needs to be an atom
+  though it'll automatically be converted to a string if the map is
+  string keyed.
+  """
+  @spec put_new_lazy(map(), atom(), (-> any())) :: map()
+  def put_new_lazy(map, key, value_function) do
+    key = cast_key(map, key)
+    Map.put_new_lazy(map, key, value_function)
+  end
+
+  @doc """
   Gets a value in a map from key. The provided needs to be an atom
   though it'll automatically be converted to a string if the map is
   string keyed.

@@ -32,6 +32,29 @@ defmodule Box.MapTest do
     end
   end
 
+  describe "put_new_lazy/3" do
+    test "puts a new lazy value depending on key type" do
+      function = fn ->
+        Process.put(:called, true)
+        :other_value
+      end
+
+      assert %{key: :value} = Box.Map.put_new_lazy(%{key: :value}, :key, function)
+      refute Process.get(:called)
+      assert %{"key" => :value} = Box.Map.put_new_lazy(%{"key" => :value}, :key, function)
+      refute Process.get(:called)
+
+      assert %{"key" => :other_value} =
+               Box.Map.put_new_lazy(%{"something" => :value}, :key, function)
+
+      assert Process.get(:called)
+      Process.delete(:called)
+      refute Process.get(:called)
+      assert %{key: :other_value} = Box.Map.put_new_lazy(%{something: :value}, :key, function)
+      assert Process.get(:called)
+    end
+  end
+
   describe "put/3" do
     test "puts value depending on key type" do
       assert %{key: :value} == Box.Map.put(%{}, :key, :value)
