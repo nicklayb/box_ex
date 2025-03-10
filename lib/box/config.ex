@@ -53,6 +53,26 @@ defmodule Box.Config do
     |> mutate(&String.split(&1, separator))
   end
 
+  def unsafe_atom!(key, options \\ []) do
+    unsafe_atom(key, Keyword.put(options, :required, true))
+  end
+
+  def unsafe_atom(key, options \\ []) do
+    key
+    |> get_env(options)
+    |> mutate(&String.to_atom/1)
+  end
+
+  def atom!(key, options \\ []) do
+    atom(key, Keyword.put(options, :required, true))
+  end
+
+  def atom(key, options \\ []) do
+    key
+    |> get_env(options)
+    |> mutate(&String.to_existing_atom/1)
+  end
+
   defp to_bool("true"), do: true
   defp to_bool("false"), do: false
 

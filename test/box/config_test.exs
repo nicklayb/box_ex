@@ -59,6 +59,31 @@ defmodule Box.ConfigTest do
     end
   end
 
+  describe "atom/2" do
+    @tag env: %{
+           "LOG_LEVEL" => "info",
+           "DONT_EXIST" => "potato",
+           "DONT_EXIST_EITHER" => "tomato"
+         }
+    test "converts to known atoms" do
+      assert :info == Box.Config.atom("LOG_LEVEL", default: "error", test: :debug)
+
+      with_config_env(:test, fn ->
+        assert :debug == Box.Config.atom("LOG_LEVEL", default: "error", test: :debug)
+      end)
+
+      assert :error == Box.Config.atom("LOGGY_LEVEL", default: "error", test: :debug)
+
+      assert_raise(ArgumentError, fn ->
+        Box.Config.atom("DONT_EXIST", required: true)
+      end)
+
+      assert :tomato == Box.Config.unsafe_atom("DONT_EXIST_EITHER", required: true)
+
+      assert :info == Box.Config.unsafe_atom("LOG_LEVEL", required: true)
+    end
+  end
+
   describe "int/2" do
     @tag env: %{
            "SOME_PORT" => "2112",
