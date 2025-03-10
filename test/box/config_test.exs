@@ -35,6 +35,30 @@ defmodule Box.ConfigTest do
     end
   end
 
+  describe "list/2" do
+    @tag env: %{
+           "ROLES" => "admin,user",
+           "HOSTS" => "http://google.com|http://yahoo.com"
+         }
+    test "gets list value" do
+      assert ["admin", "user"] = Box.Config.list("ROLES", default: "", test: "test")
+
+      with_config_env(:test, fn ->
+        assert "test" == Box.Config.get("ROLES", default: "admin", test: "test")
+      end)
+
+      assert ["http://google.com", "http://yahoo.com"] =
+               Box.Config.list("HOSTS", separator: "|", default: "", test: "localhost")
+
+      assert ["localhost"] =
+               Box.Config.list("OTHER_HOSTS",
+                 separator: "|",
+                 default: "localhost",
+                 test: "localhost"
+               )
+    end
+  end
+
   describe "int/2" do
     @tag env: %{
            "SOME_PORT" => "2112",

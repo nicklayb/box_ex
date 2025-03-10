@@ -41,6 +41,18 @@ defmodule Box.Config do
     |> mutate(&Function.identity/1)
   end
 
+  def list!(key, options \\ []) do
+    list(key, Keyword.put(options, :required, true))
+  end
+
+  def list(key, options \\ []) do
+    separator = Keyword.get(options, :separator, ",")
+
+    key
+    |> get_env(options)
+    |> mutate(&String.split(&1, separator))
+  end
+
   defp to_bool("true"), do: true
   defp to_bool("false"), do: false
 
