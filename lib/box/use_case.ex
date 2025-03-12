@@ -80,14 +80,6 @@ if Code.ensure_loaded?(Ecto.Multi) do
       quote do
         @behaviour Box.UseCase
 
-        def execute!(params, options \\ []) do
-          Box.UseCase.execute!(__MODULE__, params, options)
-        end
-
-        def execute(params, options \\ []) do
-          Box.UseCase.execute(__MODULE__, params, options)
-        end
-
         def validate(map, _), do: {:ok, map}
 
         def after_run(_map, _), do: :ok
