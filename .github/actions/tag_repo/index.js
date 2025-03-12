@@ -7,7 +7,7 @@ const VERSION_FILE = './VERSION'
 try {
   readFile(VERSION_FILE, { encoding: "utf8" }).then(content => {
     const version = content.trim()
-    const token = getInput("GITHUB_TOKEN")
+    const token = getInput("token")
 
     getOctokit(token).rest.repos.getReleaseByTag({
       ...context.repo,
