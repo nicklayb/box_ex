@@ -24,3 +24,5 @@ box-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+.github/actions/*/node_modules/
