@@ -18,6 +18,7 @@ function getOctokitSingleton() {
 async function getTag(version) {
   const octoKit = getOctokitSingleton()
   try {
+    core.info("Fetching tag")
     const result = await octoKit.rest.repos.getReleaseByTag({
       ...context.repo,
       tag: version
@@ -25,15 +26,10 @@ async function getTag(version) {
     console.log({ result })
     return result.data.id
   } catch (_error) {
+    core.info("Could not find tag")
 
     return null
   }
-}
-
-async function tagExists(tag) {
-  const githubTag = await getTag(tag)
-
-  return githubTag !== null
 }
 
 async function createTag(tag) {
@@ -53,9 +49,12 @@ async function run() {
     const content = await readFile(VERSION_FILE, { encoding: "utf8" })
     const version = content.trim()
 
-    if (tagExists(version)) {
+    const gitHubTag = await getTag(version)
+
+    if (gitHubTag !== null) {
       core.info(`Tag ${version} already exists`)
     } else {
+      core.info("Could not find tag, creating...")
       await createTag(version)
     }
 
