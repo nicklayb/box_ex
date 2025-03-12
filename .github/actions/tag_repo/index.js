@@ -4,24 +4,34 @@ import { readFile } from 'node:fs/promises'
 
 const VERSION_FILE = './VERSION'
 
-try {
-  readFile(VERSION_FILE, { encoding: "utf8" }).then(content => {
-    const version = content.trim()
-    const token = getInput("token")
+let octokitSingleton = null
 
-    getOctokit(token).rest.repos.getReleaseByTag({
-      ...context.repo,
-      tag_sha: version
-    }).then(result => {
-      console.log({ result })
-    }).catch(error => {
-      console.log({ error })
-    })
-
-    console.log(version)
-
-    core.setOutput('version', version)
-  })
-} catch (error) {
-  core.setFailed(error.message);
+function getOctokitSingleton() {
+  if (octokitSingleton) {
+    return octokitSingleton;
+  }
+  const githubToken = core.getInput('github_token');
+  octokitSingleton = getOctokit(githubToken);
+  return octokitSingleton;
 }
+async function getTag() {
+  const result = await getOctokitSingleton().repos.getReleaseByTag({
+    ...context.repo,
+    tag_sha: version
+  })
+  console.log({ result })
+}
+
+async function run() {
+  try {
+    const content = await readFile(VERSION_FILE, { encoding: "utf8" })
+    const version = content.trim()
+
+    await getTag();
+
+  } catch (error) {
+    core.setFailed(error.message);
+  }
+}
+
+run()

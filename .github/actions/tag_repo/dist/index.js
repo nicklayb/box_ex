@@ -31873,27 +31873,37 @@ const promises_namespaceObject = require("node:fs/promises");
 
 const VERSION_FILE = './VERSION'
 
-try {
-  ;(0,promises_namespaceObject.readFile)(VERSION_FILE, { encoding: "utf8" }).then(content => {
-    const version = content.trim()
-    const token = (0,core.getInput)("token")
+let octokitSingleton = null
 
-    ;(0,github.getOctokit)(token).rest.repos.getReleaseByTag({
-      ...github.context.repo,
-      tag_sha: version
-    }).then(result => {
-      console.log({ result })
-    }).catch(error => {
-      console.log({ error })
-    })
-
-    console.log(version)
-
-    core_default().setOutput('version', version)
-  })
-} catch (error) {
-  core_default().setFailed(error.message);
+function getOctokitSingleton() {
+  if (octokitSingleton) {
+    return octokitSingleton;
+  }
+  const githubToken = core_default().getInput('github_token');
+  octokitSingleton = (0,github.getOctokit)(githubToken);
+  return octokitSingleton;
 }
+async function getTag() {
+  const result = await getOctokitSingleton().repos.getReleaseByTag({
+    ...github.context.repo,
+    tag_sha: version
+  })
+  console.log({ result })
+}
+
+async function run() {
+  try {
+    const content = await (0,promises_namespaceObject.readFile)(VERSION_FILE, { encoding: "utf8" })
+    const version = content.trim()
+
+    await getTag();
+
+  } catch (error) {
+    core_default().setFailed(error.message);
+  }
+}
+
+run()
 
 })();
 
