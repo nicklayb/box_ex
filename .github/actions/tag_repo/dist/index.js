@@ -31864,6 +31864,7 @@ var core = __nccwpck_require__(7484);
 var core_default = /*#__PURE__*/__nccwpck_require__.n(core);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(3228);
+var github_default = /*#__PURE__*/__nccwpck_require__.n(github);
 ;// CONCATENATED MODULE: external "node:fs/promises"
 const promises_namespaceObject = require("node:fs/promises");
 ;// CONCATENATED MODULE: ./index.js
@@ -31876,6 +31877,13 @@ const VERSION_FILE = './VERSION'
 try {
   ;(0,promises_namespaceObject.readFile)(VERSION_FILE, { encoding: "utf8" }).then(content => {
     const version = content.trim()
+
+    github_default().getOctokit().rest.repos.getReleaseByTag({
+      ...(github_default()).context,
+      tag_sha: version
+    }).then(result => {
+      console.log(result)
+    })
 
     console.log(version)
 
