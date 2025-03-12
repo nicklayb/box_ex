@@ -31879,7 +31879,7 @@ function getOctokitSingleton() {
   if (octokitSingleton) {
     return octokitSingleton;
   }
-  const githubToken = core_default().getInput('github_token');
+  const githubToken = core_default().getInput('token');
   octokitSingleton = (0,github.getOctokit)(githubToken);
   return octokitSingleton;
 }

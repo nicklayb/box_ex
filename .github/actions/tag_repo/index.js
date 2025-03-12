@@ -1,4 +1,4 @@
-import core, { getInput } from '@actions/core'
+import core from '@actions/core'
 import { context, getOctokit } from '@actions/github'
 import { readFile } from 'node:fs/promises'
 
@@ -10,7 +10,7 @@ function getOctokitSingleton() {
   if (octokitSingleton) {
     return octokitSingleton;
   }
-  const githubToken = core.getInput('github_token');
+  const githubToken = core.getInput('token');
   octokitSingleton = getOctokit(githubToken);
   return octokitSingleton;
 }
