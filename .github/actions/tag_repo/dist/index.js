@@ -31878,7 +31878,7 @@ async function createTag(tag) {
     object: github.context.sha,
     type: 'commit',
   })
-  console.log({ create: result })
+  core.info(`Tag created ${result.data.tag}`)
 }
 
 async function run() {

@@ -39,7 +39,7 @@ async function createTag(tag) {
     object: context.sha,
     type: 'commit',
   })
-  console.log({ create: result })
+  core.info(`Tag created ${result.data.tag}`)
 }
 
 async function run() {
