@@ -22,7 +22,7 @@ async function getTag(version) {
       ...context.repo,
       tag: version
     })
-    console.log(result)
+    console.log({ result })
     return result.data.id
   } catch (_error) {
 
