@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Hello world action step
-      uses: ./
+      uses: ./.github/actions/tag_repo
       id: tag_repo
       with:
         who-to-greet: 'Mona the Octocat'
