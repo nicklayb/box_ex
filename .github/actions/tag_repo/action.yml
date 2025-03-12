@@ -1,6 +1,5 @@
 name: 'Push tags'
 description: 'Creates tag automatically when VERSION gets bumped'
-inputs:
 outputs:
   version:
     description: 'Version of the repo'
