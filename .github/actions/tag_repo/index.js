@@ -1,4 +1,4 @@
-import core from '@actions/core'
+import core, { getInput } from '@actions/core'
 import { context, getOctokit } from '@actions/github'
 import { readFile } from 'node:fs/promises'
 
@@ -7,8 +7,9 @@ const VERSION_FILE = './VERSION'
 try {
   readFile(VERSION_FILE, { encoding: "utf8" }).then(content => {
     const version = content.trim()
+    const token = getInput("GITHUB_TOKEN")
 
-    getOctokit().rest.repos.getReleaseByTag({
+    getOctokit(token).rest.repos.getReleaseByTag({
       ...context.repo,
       tag_sha: version
     }).then(result => {

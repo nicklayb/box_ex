@@ -31876,8 +31876,9 @@ const VERSION_FILE = './VERSION'
 try {
   ;(0,promises_namespaceObject.readFile)(VERSION_FILE, { encoding: "utf8" }).then(content => {
     const version = content.trim()
+    const token = (0,core.getInput)("GITHUB_TOKEN")
 
-    ;(0,github.getOctokit)().rest.repos.getReleaseByTag({
+    ;(0,github.getOctokit)(token).rest.repos.getReleaseByTag({
       ...github.context.repo,
       tag_sha: version
     }).then(result => {
