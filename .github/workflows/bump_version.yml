@@ -2,7 +2,7 @@ name: Bump version
 on:
   push:
     branches:
-      - tag-action
+      - master
 
 jobs:
   build:
@@ -12,12 +12,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Hello world action step
+    - name: Create tag if bumped
       uses: ./.github/actions/tag_repo
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
       id: tag_repo
-
-    - name: Get the output time
-      run: echo "The time was ${{ steps.hello.outputs.time }}"
 
