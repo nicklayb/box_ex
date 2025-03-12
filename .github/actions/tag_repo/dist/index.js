@@ -31871,11 +31871,12 @@ async function getTag(version) {
 
 async function createTag(tag) {
   const octoKit = getOctokitSingleton()
-  const result = await octoKit.rest.repos.createRelease({
+  await octoKit.rest.repos.createRelease({
     ...github.context.repo,
     tag_name: tag,
+    name: `v${tag}`
   })
-  core.info(`Tag created ${result.data.tag}`)
+  core.info('Tag created')
 }
 
 async function run() {
