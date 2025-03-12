@@ -31853,8 +31853,11 @@ function getOctokitSingleton() {
   octokitSingleton = (0,github.getOctokit)(githubToken);
   return octokitSingleton;
 }
+
 async function getTag() {
-  const result = await getOctokitSingleton().repos.getReleaseByTag({
+  const octoKit = getOctokitSingleton()
+
+  const result = await octoKit.repos.getReleaseByTag({
     ...github.context.repo,
     tag_sha: version
   })

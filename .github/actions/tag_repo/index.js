@@ -14,8 +14,11 @@ function getOctokitSingleton() {
   octokitSingleton = getOctokit(githubToken);
   return octokitSingleton;
 }
+
 async function getTag() {
-  const result = await getOctokitSingleton().repos.getReleaseByTag({
+  const octoKit = getOctokitSingleton()
+
+  const result = await octoKit.repos.getReleaseByTag({
     ...context.repo,
     tag_sha: version
   })
