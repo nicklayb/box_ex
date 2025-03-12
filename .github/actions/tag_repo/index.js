@@ -8,6 +8,8 @@ try {
   readFile(VERSION_FILE, { encoding: "utf8" }).then(content => {
     const version = content.trim()
 
+    console.log(version)
+
     core.setOutput('version', version)
   })
 } catch (error) {
