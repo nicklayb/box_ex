@@ -22,7 +22,30 @@ async function getTag(version) {
     ...context.repo,
     tag: version
   })
-  console.log({ result })
+
+  if (result.status == 200) {
+    return result.data
+  }
+
+  return null
+}
+
+async function tagExists(tag) {
+  const githubTag = await getTag(tag)
+
+  return githubTag !== null
+}
+
+async function createTag(tag) {
+  const octoKit = getOctokitSingleton()
+  const result = await octoKit.rest.repos.createTag({
+    ...context.repo,
+    tag,
+    message: `v${tag}`,
+    object: context.sha,
+    type: 'commit',
+  })
+  console.log(result)
 }
 
 async function run() {
@@ -30,7 +53,12 @@ async function run() {
     const content = await readFile(VERSION_FILE, { encoding: "utf8" })
     const version = content.trim()
 
-    await getTag(version);
+    if (tagExists) {
+      core.info(`Tag ${version} already exists`)
+    } else {
+      await createTag(version)
+    }
+
 
   } catch (error) {
     core.setFailed(error.message);
