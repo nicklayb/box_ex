@@ -23,6 +23,8 @@ async function getTag(version) {
     tag: version
   })
 
+  console.log({ result })
+
   if (result.status == 200 && result.data.id) {
     return result.data
   }
