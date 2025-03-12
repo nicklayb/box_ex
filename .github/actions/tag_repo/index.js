@@ -17,19 +17,16 @@ function getOctokitSingleton() {
 
 async function getTag(version) {
   const octoKit = getOctokitSingleton()
+  try {
+    await octoKit.rest.repos.getReleaseByTag({
+      ...context.repo,
+      tag: version
+    })
+    return true
+  } catch (_error) {
 
-  const result = await octoKit.rest.repos.getReleaseByTag({
-    ...context.repo,
-    tag: version
-  })
-
-  console.log({ result })
-
-  if (result.status == 200 && result.data.id) {
-    return result.data
+    return null
   }
-
-  return null
 }
 
 async function tagExists(tag) {
