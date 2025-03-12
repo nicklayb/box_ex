@@ -20,7 +20,7 @@ async function getTag(version) {
 
   const result = await octoKit.rest.repos.getReleaseByTag({
     ...context.repo,
-    tag_sha: version
+    tag: version
   })
   console.log({ result })
 }
