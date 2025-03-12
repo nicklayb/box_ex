@@ -1,0 +1,22 @@
+name: Bump version
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Hello world action step
+      uses: ./
+      id: tag_repo
+      with:
+        who-to-greet: 'Mona the Octocat'
+
+    - name: Get the output time
+      run: echo "The time was ${{ steps.hello.outputs.time }}"

@@ -17,6 +17,7 @@
               elixir
               erlang_27
               inotify-tools
+              nodejs_22
             ];
           };
         }
