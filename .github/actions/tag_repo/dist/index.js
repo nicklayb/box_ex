@@ -31857,11 +31857,12 @@ function getOctokitSingleton() {
 async function getTag(version) {
   const octoKit = getOctokitSingleton()
   try {
-    await octoKit.rest.repos.getReleaseByTag({
+    const result = octoKit.rest.repos.getReleaseByTag({
       ...github.context.repo,
       tag: version
     })
-    return true
+    console.log(result)
+    return result.data.id
   } catch (_error) {
 
     return null
