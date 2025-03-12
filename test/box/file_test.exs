@@ -82,4 +82,3 @@ defmodule Box.FileTest do
     end
   end
 end
-
