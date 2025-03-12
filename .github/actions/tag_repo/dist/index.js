@@ -31882,7 +31882,9 @@ try {
       ...github.context.repo,
       tag_sha: version
     }).then(result => {
-      console.log(result)
+      console.log({ result })
+    }).catch(error => {
+      console.log({ error })
     })
 
     console.log(version)
