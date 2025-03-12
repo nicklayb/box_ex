@@ -31874,7 +31874,7 @@ const promises_namespaceObject = require("node:fs/promises");
 const VERSION_FILE = './VERSION'
 
 try {
-  ;(0,promises_namespaceObject.readFile)(VERSION_FILE).then(content => {
+  ;(0,promises_namespaceObject.readFile)(VERSION_FILE, { encoding: "utf8" }).then(content => {
     const version = content.trim()
 
     core_default().setOutput('version', version)
