@@ -55,7 +55,7 @@ async function run() {
     const content = await readFile(VERSION_FILE, { encoding: "utf8" })
     const version = content.trim()
 
-    if (tagExists) {
+    if (tagExists(version)) {
       core.info(`Tag ${version} already exists`)
     } else {
       await createTag(version)
