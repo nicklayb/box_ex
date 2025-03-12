@@ -31862,7 +31862,7 @@ async function getTag(version) {
     tag: version
   })
 
-  if (result.status == 200) {
+  if (result.status == 200 && result.data.id) {
     return result.data
   }
 
