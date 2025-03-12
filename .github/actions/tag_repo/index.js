@@ -15,7 +15,7 @@ function getOctokitSingleton() {
   return octokitSingleton;
 }
 
-async function getTag() {
+async function getTag(version) {
   const octoKit = getOctokitSingleton()
 
   const result = await octoKit.rest.repos.getReleaseByTag({
@@ -30,7 +30,7 @@ async function run() {
     const content = await readFile(VERSION_FILE, { encoding: "utf8" })
     const version = content.trim()
 
-    await getTag();
+    await getTag(version);
 
   } catch (error) {
     core.setFailed(error.message);
