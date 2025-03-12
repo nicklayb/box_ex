@@ -32,12 +32,9 @@ async function getTag(version) {
 
 async function createTag(tag) {
   const octoKit = getOctokitSingleton()
-  const result = await octoKit.rest.git.createTag({
+  const result = await octoKit.rest.repos.createRelease({
     ...context.repo,
-    tag,
-    message: `v${tag}`,
-    object: context.sha,
-    type: 'commit',
+    tag_name: tag,
   })
   core.info(`Tag created ${result.data.tag}`)
 }
