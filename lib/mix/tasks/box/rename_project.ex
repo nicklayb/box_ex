@@ -1,4 +1,6 @@
 defmodule Mix.Tasks.Box.RenameProject do
+  @shortdoc "Renames a project"
+
   @moduledoc """
   Renames a project to a new name. It expects the following arguments:
 
@@ -17,7 +19,6 @@ defmodule Mix.Tasks.Box.RenameProject do
   mix box.rename_project --from my_app --to the_fallen_dragon
   ```
   """
-  @shortdoc "Renames a project"
 
   use Mix.Task
 
