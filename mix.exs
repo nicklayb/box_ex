@@ -2,6 +2,7 @@ defmodule Box.MixProject do
   use Mix.Project
 
   @version File.read!("VERSION") |> String.trim()
+  @github "https://github.com/nicklayb/box_ex"
 
   def project do
     [
@@ -10,7 +11,8 @@ defmodule Box.MixProject do
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      elixirc_paths: elixirc_paths(Mix.env())
+      elixirc_paths: elixirc_paths(Mix.env()),
+      source_url: @github
     ]
   end
 

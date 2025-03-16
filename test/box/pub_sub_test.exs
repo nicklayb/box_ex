@@ -23,10 +23,24 @@ defmodule Box.PubSubTest do
       send(self(), {:broadcast, topic_or_topics, message_or_messages, options})
       :ok
     end
+
+    def put_default_options(options) do
+      Keyword.put(options, :topic_generator, &topic/1)
+    end
+
+    defp topic(atom) when is_atom(atom), do: "atom:#{atom}"
+    defp topic(other), do: other
   end
 
   defmodule TestPubSubNoCallback do
     use Box.PubSub
+
+    def put_default_options(options) do
+      Keyword.put(options, :topic_generator, &topic/1)
+    end
+
+    defp topic(atom) when is_atom(atom), do: "atom:#{atom}"
+    defp topic(other), do: other
   end
 
   setup context do
@@ -41,6 +55,13 @@ defmodule Box.PubSubTest do
       server.subscribe("topic")
       refute_receive({:subscribe, _, _})
       server.broadcast("topic", :hello)
+      assert_receive(%Box.PubSub.Message{message: :hello})
+    end
+
+    test "subscribe to topic and invokes topic generator", %{server: server} do
+      server.subscribe(:topic)
+      refute_receive({:subscribe, _, _})
+      server.broadcast("atom:topic", :hello)
       assert_receive(%Box.PubSub.Message{message: :hello})
     end
 
@@ -71,6 +92,16 @@ defmodule Box.PubSubTest do
       server.unsubscribe("topic")
       refute_receive({:unsubscribe, _, _})
       server.broadcast("topic", :hello)
+      refute_receive(%Box.PubSub.Message{message: :hello})
+    end
+
+    test "unsubscribe to topic using topic generator", %{server: server} do
+      server.subscribe("atom:topic")
+      server.broadcast("atom:topic", :hello)
+      assert_receive(%Box.PubSub.Message{message: :hello})
+      server.unsubscribe(:topic)
+      refute_receive({:unsubscribe, _, _})
+      server.broadcast("atom:topic", :hello)
       refute_receive(%Box.PubSub.Message{message: :hello})
     end
 
@@ -108,6 +139,21 @@ defmodule Box.PubSubTest do
       server.broadcast("topic", :hello)
       assert_receive(%Box.PubSub.Message{topic: "topic", message: :hello})
       refute_receive(%Box.PubSub.Message{topic: "topic", message: :hello})
+    end
+
+    test "unsubscribes all subscription and resubscribes once with topic generator", %{
+      server: server
+    } do
+      server.subscribe("atom:topic")
+      server.subscribe("atom:topic")
+      server.broadcast("atom:topic", :hello)
+      assert_receive(%Box.PubSub.Message{topic: "atom:topic", message: :hello})
+      assert_receive(%Box.PubSub.Message{topic: "atom:topic", message: :hello})
+      server.resubscribe(:topic)
+      refute_receive({:resubscribe, "atom:topic", _})
+      server.broadcast("atom:topic", :hello)
+      assert_receive(%Box.PubSub.Message{topic: "atom:topic", message: :hello})
+      refute_receive(%Box.PubSub.Message{topic: "atom:topic", message: :hello})
     end
 
     @tag server: TestPubSub
@@ -162,6 +208,20 @@ defmodule Box.PubSubTest do
       assert_receive({"topic", :hello, nil})
       server.broadcast("topic", :hello, dispatcher: nil, raw: true, metadata: :metadata)
       assert_receive({"topic", :hello, :metadata})
+    end
+
+    test "broadcasts wrapped message using topic generator", %{server: server} do
+      server.subscribe("atom:topic")
+      server.broadcast(:topic, :hello)
+      refute_receive({:broadcast, "atom:topic", :hello, _})
+      assert_receive(%Box.PubSub.Message{topic: "atom:topic", message: :hello})
+      server.broadcast(:topic, :hello, dispatcher: nil)
+      assert_receive(:hello)
+      refute_receive(%Box.PubSub.Message{topic: "atom:topic", message: :hello})
+      server.broadcast(:topic, :hello, dispatcher: nil, raw: true)
+      assert_receive({"atom:topic", :hello, nil})
+      server.broadcast(:topic, :hello, dispatcher: nil, raw: true, metadata: :metadata)
+      assert_receive({"atom:topic", :hello, :metadata})
     end
 
     @tag server: TestPubSub

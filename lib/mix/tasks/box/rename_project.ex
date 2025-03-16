@@ -84,7 +84,9 @@ defmodule Mix.Tasks.Box.RenameProject do
   end
 
   defp folder_walker(base_folder, {from, to}, {:dir, dir}, _, options) do
-    if not folder_ingored?(base_folder, dir) do
+    if folder_ingored?(base_folder, dir) do
+      :discard
+    else
       new_name = String.replace(dir, from, to)
 
       name_updated? = rename_file(dir, new_name, options)
@@ -94,8 +96,6 @@ defmodule Mix.Tasks.Box.RenameProject do
       else
         :continue
       end
-    else
-      :discard
     end
   end
 
@@ -110,11 +110,11 @@ defmodule Mix.Tasks.Box.RenameProject do
   defp rename_file(name, name, _), do: false
 
   defp rename_file(old_name, new_name, options) do
-    if not dry_run?(options) do
+    if dry_run?(options) do
+      Logger.info("[#{inspect(__MODULE__)}] [dryrun] #{old_name} -> #{new_name}")
+    else
       :ok = File.rename(old_name, new_name)
       Logger.info("[#{inspect(__MODULE__)}] #{old_name} -> #{new_name}")
-    else
-      Logger.info("[#{inspect(__MODULE__)}] [dryrun] #{old_name} -> #{new_name}")
     end
 
     true
@@ -136,13 +136,13 @@ defmodule Mix.Tasks.Box.RenameProject do
   defp write_content(_file, content, content, _options), do: false
 
   defp write_content(file, _from, new_content, options) do
-    if not dry_run?(options) do
+    if dry_run?(options) do
+      Logger.info("[#{inspect(__MODULE__)}] [dryrun] #{file} updated")
+      false
+    else
       :ok = File.write!(file, new_content)
       Logger.info("[#{inspect(__MODULE__)}] #{file} updated")
       true
-    else
-      Logger.info("[#{inspect(__MODULE__)}] [dryrun] #{file} updated")
-      false
     end
   end
 

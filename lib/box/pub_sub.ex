@@ -13,28 +13,39 @@ if Code.ensure_loaded?(Phoenix.PubSub) do
         end
 
         def broadcast(topic_or_topics, message_or_messages, options \\ []) do
+          options =
+            options
+            |> put_default_options()
+            |> with_default_broadcast_options()
+
           @server
           |> Box.PubSub.broadcast(
             topic_or_topics,
             message_or_messages,
-            with_default_broadcast_options(options)
+            options
           )
           |> tap(fn _ -> after_broadcast(topic_or_topics, message_or_messages, options) end)
         end
 
         def subscribe(topic_or_topics, options \\ []) do
+          options = put_default_options(options)
+
           @server
           |> Box.PubSub.subscribe(topic_or_topics, options)
           |> tap(fn _ -> after_subscribe(topic_or_topics, options) end)
         end
 
         def resubscribe(topic_or_topics, options \\ []) do
+          options = put_default_options(options)
+
           @server
           |> Box.PubSub.resubscribe(topic_or_topics, options)
           |> tap(fn _ -> after_resubscribe(topic_or_topics, options) end)
         end
 
         def unsubscribe(topic_or_topics, options \\ []) do
+          options = put_default_options(options)
+
           @server
           |> Box.PubSub.unsubscribe(topic_or_topics, options)
           |> tap(fn _ -> after_unsubscribe(topic_or_topics, options) end)
@@ -60,7 +71,12 @@ if Code.ensure_loaded?(Phoenix.PubSub) do
           Keyword.put_new(options, :dispatcher, @dispatcher)
         end
 
+        def put_default_options(options) do
+          options
+        end
+
         defoverridable(
+          put_default_options: 1,
           after_broadcast: 3,
           after_resubscribe: 2,
           after_unsubscribe: 2,
@@ -74,10 +90,12 @@ if Code.ensure_loaded?(Phoenix.PubSub) do
       subscribe(server, topic_or_topics, options)
     end
 
-    def unsubscribe(server, topic_or_topics, _options \\ []) do
+    def unsubscribe(server, topic_or_topics, options \\ []) do
       topic_or_topics
       |> List.wrap()
-      |> Enum.each(&Phoenix.PubSub.unsubscribe(server, &1))
+      |> Enum.each(fn topic ->
+        Phoenix.PubSub.unsubscribe(server, generate_topic(topic, options))
+      end)
     end
 
     def broadcast(server, topic_or_topics, message_or_messages, options \\ []) do
@@ -95,6 +113,8 @@ if Code.ensure_loaded?(Phoenix.PubSub) do
     end
 
     defp broadcast_message(server, topic, message, dispatcher, options) do
+      topic = generate_topic(topic, options)
+
       message =
         if dispatcher == Box.PubSub.Dispatcher or
              Keyword.get(options, :raw, false) do
@@ -107,10 +127,19 @@ if Code.ensure_loaded?(Phoenix.PubSub) do
       Phoenix.PubSub.broadcast(server, topic, message, dispatcher)
     end
 
-    def subscribe(server, topic_or_topics, _options \\ []) do
+    def subscribe(server, topic_or_topics, options \\ []) do
       topic_or_topics
       |> List.wrap()
-      |> Enum.each(&Phoenix.PubSub.subscribe(server, &1))
+      |> Enum.each(fn topic ->
+        Phoenix.PubSub.subscribe(server, generate_topic(topic, options))
+      end)
+    end
+
+    defp generate_topic(topic, options) do
+      case Keyword.get(options, :topic_generator) do
+        function when is_function(function, 1) -> function.(topic)
+        _ -> topic
+      end
     end
   end
 end
