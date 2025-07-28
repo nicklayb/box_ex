@@ -295,12 +295,8 @@ defmodule Box.Color do
     _ -> :error
   end
 
-  @alpha_formats [
-    percent: ~r/([0-9]{1,3})%/,
-    decimal: ~r/[0-1](\.[0-9]+)?/
-  ]
   defp parse_alpha!(string) do
-    Enum.reduce_while(@alpha_formats, @max_percent, fn {key, format}, acc ->
+    Enum.reduce_while(alpha_formats(), @max_percent, fn {key, format}, acc ->
       result =
         format
         |> Regex.scan(string)
@@ -311,6 +307,13 @@ defmodule Box.Color do
         value -> {:halt, value}
       end
     end)
+  end
+
+  defp alpha_formats do
+    [
+      percent: ~r/([0-9]{1,3})%/,
+      decimal: ~r/[0-1](\.[0-9]+)?/
+    ]
   end
 
   defp decode_format([[_, percent]], :percent), do: String.to_integer(percent)

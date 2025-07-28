@@ -142,5 +142,19 @@ if Code.ensure_loaded?(Ecto.Changeset) and Code.ensure_loaded?(Gettext) do
 
     defp next_incrementer(nil), do: 1
     defp next_incrementer(integer), do: integer + 1
+
+    @doc "Puts a default value change if no value is provided"
+    @spec put_default_change(Ecto.Changeset.t(), atom(), (-> any()) | any) ::
+            Ecto.Changeset.t()
+    def put_default_change(%Ecto.Changeset{} = changeset, field, value_or_function) do
+      new_value =
+        case {Ecto.Changeset.get_field(changeset, field), value_or_function} do
+          {nil, function} when is_function(function, 0) -> function.()
+          {nil, value} -> value
+          {_, current_value} -> current_value
+        end
+
+      Ecto.Changeset.put_change(changeset, field, new_value)
+    end
   end
 end
