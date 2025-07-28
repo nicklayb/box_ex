@@ -262,9 +262,6 @@ defmodule Box.Color do
     %Color{color | source: :hsl}
   end
 
-  defp hsl_css_regex,
-    do: ~r/^hsl?\(([0-9]{1,3})(deg)?, *([0-9]{1,3})%?, *([0-9]{1,3})%?(, *(.*))?\)$/
-
   def parse!("#" <> hex) do
     parse!(hex)
   end
@@ -285,6 +282,9 @@ defmodule Box.Color do
   end
 
   defp rgb_css_regex, do: ~r/^rgb\(([0-9]{1,3}), *([0-9]{1,3}), *([0-9]{1,3})\)$/
+
+  defp hsl_css_regex,
+    do: ~r/^hsl?\(([0-9]{1,3})(deg)?, *([0-9]{1,3})%?, *([0-9]{1,3})%?(, *(.*))?\)$/
 
   defp parse_rgb_with_alpha!(string) do
     case Regex.scan(rgba_css_regex(), string) do
