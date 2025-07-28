@@ -1,4 +1,15 @@
 defmodule Box.PoolProcessor do
+  @moduledoc """
+  Starts a pool processor that runs jobs concurrently
+
+  ## Examples
+
+      iex> Box.PoolProcessor.start_link(name: MyPool, size: 10)
+      {:ok, pid}
+    
+      iex> Box.PoolProcessor.async(MyPool, fn -> IO.inspect("Hello") end)
+      :ok
+  """
   use Supervisor
 
   alias Box.PoolProcessor
