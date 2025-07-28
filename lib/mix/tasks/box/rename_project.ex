@@ -24,13 +24,6 @@ defmodule Mix.Tasks.Box.RenameProject do
 
   require Logger
 
-  @ingored_path [
-    ~r/\/?deps/,
-    ~r/\/?_build/,
-    ~r/\/?.git/,
-    ~r/\/?.elixir_ls/
-  ]
-
   @options [
     strict: [
       from: :string,
@@ -62,6 +55,15 @@ defmodule Mix.Tasks.Box.RenameProject do
     Regex.match?(~r/^[a-z][a-z_0-9]*$/, value)
   end
 
+  defp ignored_paths do
+    [
+      ~r/\/?deps/,
+      ~r/\/?_build/,
+      ~r/\/?.git/,
+      ~r/\/?.elixir_ls/
+    ]
+  end
+
   @root_folder "./"
   defp run(from, to, options) do
     folder =
@@ -85,7 +87,7 @@ defmodule Mix.Tasks.Box.RenameProject do
   end
 
   defp folder_walker(base_folder, {from, to}, {:dir, dir}, _, options) do
-    if folder_ingored?(base_folder, dir) do
+    if folder_ignored?(base_folder, dir) do
       :discard
     else
       new_name = String.replace(dir, from, to)
@@ -100,10 +102,10 @@ defmodule Mix.Tasks.Box.RenameProject do
     end
   end
 
-  defp folder_ingored?(base_folder, folder) do
+  defp folder_ignored?(base_folder, folder) do
     only_folder = String.replace(folder, base_folder, "")
 
-    Enum.any?(@ingored_path, fn path ->
+    Enum.any?(ignored_paths(), fn path ->
       Regex.match?(path, only_folder)
     end)
   end
