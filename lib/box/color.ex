@@ -244,10 +244,9 @@ defmodule Box.Color do
     %Color{color | source: :rgb}
   end
 
-  @hsl_css_regex ~r/^hsl?\(([0-9]{1,3})(deg)?, *([0-9]{1,3})%?, *([0-9]{1,3})%?(, *(.*))?\)$/
   def parse!("hsl" <> _ = string) do
     {hue, saturation, lightness, maybe_alpha} =
-      case Regex.scan(@hsl_css_regex, string) do
+      case Regex.scan(hsl_css_regex(), string) do
         [[_, hue, _, saturation, lightness, _, maybe_alpha]] ->
           {hue, saturation, lightness, maybe_alpha}
 
@@ -263,6 +262,9 @@ defmodule Box.Color do
     %Color{color | source: :hsl}
   end
 
+  defp hsl_css_regex,
+    do: ~r/^hsl?\(([0-9]{1,3})(deg)?, *([0-9]{1,3})%?, *([0-9]{1,3})%?(, *(.*))?\)$/
+
   def parse!("#" <> hex) do
     parse!(hex)
   end
@@ -272,9 +274,8 @@ defmodule Box.Color do
     %Color{color | source: :hex}
   end
 
-  @rgb_css_regex ~r/^rgb\(([0-9]{1,3}), *([0-9]{1,3}), *([0-9]{1,3})\)$/
   defp parse_rgb!(string) do
-    case Regex.scan(@rgb_css_regex, string) do
+    case Regex.scan(rgb_css_regex(), string) do
       [[_, red, green, blue]] ->
         [red_int, green_int, blue_int] = Enum.map([red, green, blue], &String.to_integer/1)
         rgb!({red_int, green_int, blue_int})
@@ -283,9 +284,10 @@ defmodule Box.Color do
     _ -> :error
   end
 
-  @rgba_css_regex ~r/^rgba?\(([0-9]{1,3}), *([0-9]{1,3}), *([0-9]{1,3}), *(.*)\)$/
+  defp rgb_css_regex, do: ~r/^rgb\(([0-9]{1,3}), *([0-9]{1,3}), *([0-9]{1,3})\)$/
+
   defp parse_rgb_with_alpha!(string) do
-    case Regex.scan(@rgba_css_regex, string) do
+    case Regex.scan(rgba_css_regex(), string) do
       [[_, red, green, blue, maybe_alpha]] ->
         [red_int, green_int, blue_int] = Enum.map([red, green, blue], &String.to_integer/1)
         alpha = parse_alpha!(maybe_alpha)
@@ -294,6 +296,8 @@ defmodule Box.Color do
   rescue
     _ -> :error
   end
+
+  defp rgba_css_regex, do: ~r/^rgba?\(([0-9]{1,3}), *([0-9]{1,3}), *([0-9]{1,3}), *(.*)\)$/
 
   defp parse_alpha!(string) do
     Enum.reduce_while(alpha_formats(), @max_percent, fn {key, format}, acc ->

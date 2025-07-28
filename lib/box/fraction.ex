@@ -60,9 +60,6 @@ defmodule Box.Fraction do
     numerator / denominator
   end
 
-  @integer_regex ~r/^[0-9]+$/
-  @float_regex ~r/^[0-9]+\.[0-9]+$/
-  @fraction_regex ~r/(^[0-9]+)\/([0-9]+)$/
   @doc """
   Parses a string to a fraction type. It supports parsing the
   following formats: 
@@ -74,17 +71,17 @@ defmodule Box.Fraction do
   @spec parse(String.t()) :: Fraction.t()
   def parse(string) do
     cond do
-      Regex.match?(@integer_regex, string) ->
+      Regex.match?(integer_regex(), string) ->
         string
         |> String.to_integer()
         |> Fraction.new()
 
-      Regex.match?(@float_regex, string) ->
+      Regex.match?(float_regex(), string) ->
         string
         |> String.to_float()
         |> Fraction.new()
 
-      Regex.match?(@fraction_regex, string) ->
+      Regex.match?(fraction_regex(), string) ->
         parse_fraction(string)
 
       true ->
@@ -92,8 +89,12 @@ defmodule Box.Fraction do
     end
   end
 
+  defp integer_regex, do: ~r/^[0-9]+$/
+  defp float_regex, do: ~r/^[0-9]+\.[0-9]+$/
+  defp fraction_regex, do: ~r/(^[0-9]+)\/([0-9]+)$/
+
   defp parse_fraction(string) do
-    case Regex.scan(@fraction_regex, string) do
+    case Regex.scan(fraction_regex(), string) do
       [[_, numerator, denominator]] ->
         numerator
         |> String.to_integer()

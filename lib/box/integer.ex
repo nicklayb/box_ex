@@ -44,11 +44,10 @@ defmodule Box.Integer do
     to_duration_string(integer * multiplier)
   end
 
-  @duration_string_regex ~r/^([0-9]+)([a-z]{1,2})?$/
   @doc "Converts a duration string like 1s to milliseconds"
   @spec from_duration_string(String.t()) :: non_neg_integer()
   def from_duration_string(string) do
-    case Regex.scan(@duration_string_regex, string) do
+    case Regex.scan(duration_string_regex(), string) do
       [[_, amount, unit]] ->
         from_duration_string(amount, unit)
 
@@ -59,6 +58,8 @@ defmodule Box.Integer do
         raise "Invalid string #{inspect(string)}"
     end
   end
+
+  defp duration_string_regex, do: ~r/^([0-9]+)([a-z]{1,2})?$/
 
   defp from_duration_string(amount, unit) when is_binary(amount) and is_binary(unit) do
     amount_int = String.to_integer(amount)
