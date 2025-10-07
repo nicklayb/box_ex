@@ -5,7 +5,7 @@ defmodule Box.Generator.Base64Test do
 
   describe "generate/1" do
     test "generates base64 string" do
-      assert Regex.match?(~r/^[A-Za-z0-9+\/=]{8}$/, Base64.generate(length: 8))
+      assert Regex.match?(~r/^[A-Za-z0-9+\/_\-=]{8}$/, Base64.generate(length: 8))
     end
   end
 end
