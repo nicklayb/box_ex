@@ -60,6 +60,31 @@ defmodule Box.Ecto.ChangesetTest do
     end
   end
 
+  describe "change_empty/3" do
+    test "adds value only if previous is nil" do
+      changeset = TestUser.changeset(%{title: "Title"})
+
+      assert %Ecto.Changeset{errors: [], valid?: true, changes: %{slug: "Slug"}} =
+               Box.Ecto.Changeset.change_empty(changeset, :slug, "Slug")
+
+      assert %Ecto.Changeset{
+               errors: [{:title, {"expected to be empty, got Title", []}}],
+               valid?: false,
+               changes: %{title: "Title"}
+             } =
+               Box.Ecto.Changeset.change_empty(changeset, :title, "New Title")
+
+      assert %Ecto.Changeset{
+               errors: [{:title, {"expected to be empty, got Title", []}}],
+               valid?: false,
+               changes: %{}
+             } =
+               %TestUser{title: "Title"}
+               |> TestUser.changeset(%{})
+               |> Box.Ecto.Changeset.change_empty(:title, "New Title")
+    end
+  end
+
   defp exists_in_process?(name, field) do
     key = {field, :slugs}
     known_slugs = Process.get(key) || []

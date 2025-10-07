@@ -7,7 +7,7 @@ if Code.ensure_loaded?(Ecto.Changeset) and Code.ensure_loaded?(Gettext) do
 
     require Ecto.Query
 
-    @type touch_timestamp_option :: {:key, atom()} | {:setter, atom()}
+    @type touch_timestamp_option :: {:key, atom()} | {:setter, atom()} | {:only_once?, boolean()}
 
     @doc """
     Updates a schema's timestamp from a boolean field. The schema
@@ -28,11 +28,22 @@ if Code.ensure_loaded?(Ecto.Changeset) and Code.ensure_loaded?(Gettext) do
       Box.Ecto.Changeset.update_valid(changeset, fn changeset ->
         setter = Keyword.fetch!(options, :setter)
         key = Keyword.get_lazy(options, :key, fn -> String.to_existing_atom("#{setter}_at") end)
+        only_once? = Keyword.get(options, :only_once?, false)
+        touch? = get_change(changeset, setter)
+        timestamp = DateTime.truncate(DateTime.utc_now(), :second)
 
-        case get_change(changeset, setter) do
-          true -> put_change(changeset, key, DateTime.truncate(DateTime.utc_now(), :second))
-          false -> put_change(changeset, key, nil)
-          _ -> changeset
+        case {touch?, only_once?} do
+          {true, true} ->
+            change_empty(changeset, key, timestamp)
+
+          {true, false} ->
+            put_change(changeset, key, timestamp)
+
+          {false, _} ->
+            put_change(changeset, key, nil)
+
+          _ ->
+            changeset
         end
       end)
     end
@@ -155,6 +166,18 @@ if Code.ensure_loaded?(Ecto.Changeset) and Code.ensure_loaded?(Gettext) do
         end
 
       Ecto.Changeset.put_change(changeset, field, new_value)
+    end
+
+    @doc "Changes a field that is expected to be empty before, adding error if a value is already set"
+    @spec change_empty(Ecto.Changeset.t(), atom(), any()) :: Ecto.Changeset.t()
+    def change_empty(%Ecto.Changeset{} = changeset, field, value) do
+      case get_field(changeset, field) do
+        nil ->
+          put_change(changeset, field, value)
+
+        other ->
+          add_error(changeset, field, "expected to be empty, got #{other}")
+      end
     end
   end
 end
