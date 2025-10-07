@@ -12,7 +12,8 @@ defmodule Box.Ecto.ChangesetTest do
       field(:another_slug, :string)
     end
 
-    def changeset(params), do: Ecto.Changeset.cast(%TestUser{}, params, [:title])
+    def changeset(schema \\ %TestUser{}, params),
+      do: Ecto.Changeset.cast(schema, params, [:title])
   end
 
   describe "generate_slug/2" do
@@ -45,6 +46,31 @@ defmodule Box.Ecto.ChangesetTest do
                  field: :another_slug,
                  exists?: &exists_in_process?(&1, :another_slug)
                )
+    end
+  end
+
+  describe "change_empty/3" do
+    test "adds value only if previous is nil" do
+      changeset = TestUser.changeset(%{title: "Title"})
+
+      assert %Ecto.Changeset{errors: [], valid?: true, changes: %{slug: "Slug"}} =
+               Box.Ecto.Changeset.change_empty(changeset, :slug, "Slug")
+
+      assert %Ecto.Changeset{
+               errors: [{:title, {"expected to be empty, got Title", []}}],
+               valid?: false,
+               changes: %{title: "Title"}
+             } =
+               Box.Ecto.Changeset.change_empty(changeset, :title, "New Title")
+
+      assert %Ecto.Changeset{
+               errors: [{:title, {"expected to be empty, got Title", []}}],
+               valid?: false,
+               changes: %{}
+             } =
+               %TestUser{title: "Title"}
+               |> TestUser.changeset(%{})
+               |> Box.Ecto.Changeset.change_empty(:title, "New Title")
     end
   end
 

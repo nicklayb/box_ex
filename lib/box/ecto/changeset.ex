@@ -28,11 +28,22 @@ if Code.ensure_loaded?(Ecto.Changeset) and Code.ensure_loaded?(Gettext) do
       Box.Ecto.Changeset.update_valid(changeset, fn changeset ->
         setter = Keyword.fetch!(options, :setter)
         key = Keyword.get_lazy(options, :key, fn -> String.to_existing_atom("#{setter}_at") end)
+        only_once? = Keyword.get(options, :only_once, false)
+        touch? = get_change(changeset, setter)
+        timestamp = DateTime.truncate(DateTime.utc_now(), :second)
 
-        case get_change(changeset, setter) do
-          true -> put_change(changeset, key, DateTime.truncate(DateTime.utc_now(), :second))
-          false -> put_change(changeset, key, nil)
-          _ -> changeset
+        case {touch?, only_once?} do
+          {true, true} ->
+            change_empty(changeset, key, timestamp)
+
+          {true, false} ->
+            put_change(changeset, key, timestamp)
+
+          {false, _} ->
+            put_change(changeset, key, nil)
+
+          _ ->
+            changeset
         end
       end)
     end
@@ -76,7 +87,7 @@ if Code.ensure_loaded?(Ecto.Changeset) and Code.ensure_loaded?(Gettext) do
       field_or_fields
       |> List.wrap()
       |> Enum.reduce(changeset, fn field, changeset ->
-        Ecto.Changeset.update_change(changeset, field, &String.trim/1)
+        update_change(changeset, field, &String.trim/1)
       end)
     end
 
@@ -93,7 +104,7 @@ if Code.ensure_loaded?(Ecto.Changeset) and Code.ensure_loaded?(Gettext) do
     def generate_unique(%Ecto.Changeset{} = changeset, field, options) do
       {generator, options} = Keyword.pop!(options, :generator)
       value = Box.Generator.unique(generator, options)
-      Ecto.Changeset.put_change(changeset, field, value)
+      put_change(changeset, field, value)
     end
 
     @doc "Applies a given function a valid changeset"
@@ -118,11 +129,11 @@ if Code.ensure_loaded?(Ecto.Changeset) and Code.ensure_loaded?(Gettext) do
       source_field = Keyword.fetch!(options, :source)
       destination_field = Keyword.get(options, :field, :slug)
 
-      name = Ecto.Changeset.get_field(changeset, source_field)
+      name = get_field(changeset, source_field)
 
       slug = generate_unique_slug(name, options)
 
-      Ecto.Changeset.put_change(changeset, destination_field, slug)
+      put_change(changeset, destination_field, slug)
     end
 
     defp generate_unique_slug(name, options, incrementer \\ nil) do
@@ -138,5 +149,17 @@ if Code.ensure_loaded?(Ecto.Changeset) and Code.ensure_loaded?(Gettext) do
 
     defp next_incrementer(nil), do: 1
     defp next_incrementer(integer), do: integer + 1
+
+    @doc "Changes a field that is expected to be empty before, adding error if a value is already set"
+    @spec change_empty(Ecto.Changeset.t(), atom(), any()) :: Ecto.Changeset.t()
+    def change_empty(%Ecto.Changeset{} = changeset, field, value) do
+      case get_field(changeset, field) do
+        nil ->
+          put_change(changeset, field, value)
+
+        other ->
+          add_error(changeset, field, "expected to be empty, got #{other}")
+      end
+    end
   end
 end
