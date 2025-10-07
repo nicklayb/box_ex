@@ -1,6 +1,6 @@
 defmodule Box.PoolProcessor.Queue do
+  @behaviour Box.PoolProcessor.QueueBehaviour
   alias Box.PoolProcessor.QueueBehaviour
-  @behaviour QueueBehaviour
 
   @impl QueueBehaviour
   def init(_) do
@@ -28,8 +28,8 @@ defmodule Box.PoolProcessor.Queue do
 end
 
 defmodule Box.PoolProcessor.List do
+  @behaviour Box.PoolProcessor.QueueBehaviour
   alias Box.PoolProcessor.QueueBehaviour
-  @behaviour QueueBehaviour
 
   @impl QueueBehaviour
   def init(_) do
@@ -53,10 +53,8 @@ defmodule Box.PoolProcessor.List do
 end
 
 defmodule Run do
-  def start(timer, args) do
-    IO.inspect("#{args} Started")
+  def start(timer, _args) do
     Process.sleep(timer)
-    IO.inspect("#{args} Done")
   end
 
   def spec(timer, args) do

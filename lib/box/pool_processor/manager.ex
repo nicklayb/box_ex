@@ -1,10 +1,10 @@
 defmodule Box.PoolProcessor.Manager do
   use GenServer
 
-  require Logger
-
-  alias Box.PoolProcessor.QueueBehaviour
   alias Box.PoolProcessor.Manager.State
+  alias Box.PoolProcessor.QueueBehaviour
+
+  require Logger
 
   @type option ::
           {:size, non_neg_integer()}

@@ -1,11 +1,11 @@
 defmodule Box.PoolProcessor.Manager.State do
   alias Box.PoolProcessor
-  alias Box.PoolProcessor.QueueBehaviour
   alias Box.PoolProcessor.Manager.State
-
-  defstruct [:supervisor_pid, :size, :queue, processes: [], watchers: %{}]
+  alias Box.PoolProcessor.QueueBehaviour
 
   require Logger
+
+  defstruct [:supervisor_pid, :size, :queue, processes: [], watchers: %{}]
 
   @type queue_state :: any()
   @type queue_spec :: {module(), Keyword.t()}
