@@ -80,4 +80,15 @@ defmodule Box.ZipperTest do
       assert 2 == Zipper.current(zipper)
     end
   end
+
+  describe "to_ordered_list/1" do
+    test "returns a list with identified current" do
+      initial_zipper = Zipper.new([1, 2, 3])
+      assert [{:current, 1}, 2, 3] = Zipper.to_ordered_list(initial_zipper)
+      {:cont, zipper} = Zipper.next(initial_zipper)
+      assert [1, {:current, 2}, 3] = Zipper.to_ordered_list(zipper)
+      {:cont, zipper} = Zipper.next(zipper)
+      assert [1, 2, {:current, 3}] = Zipper.to_ordered_list(zipper)
+    end
+  end
 end

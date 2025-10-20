@@ -70,4 +70,9 @@ defmodule Box.Zipper do
         new_zipper
     end
   end
+
+  @spec to_ordered_list(t()) :: [any() | {:current, any()}]
+  def to_ordered_list(%Zipper{previous: previous, next: next, current: current}) do
+    Enum.reverse(previous) ++ [{:current, current} | next]
+  end
 end
