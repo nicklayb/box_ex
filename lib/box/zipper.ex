@@ -2,9 +2,9 @@ defmodule Box.Zipper do
   @moduledoc """
   Data structure that zips over a single data
   """
-  defstruct previous: [], next: [], current: nil
-
   alias Box.Zipper
+
+  defstruct previous: [], next: [], current: nil
 
   @type t :: %Zipper{previous: list(), next: list(), current: any()}
 
