@@ -132,4 +132,30 @@ defmodule Box.MapTest do
                Box.Map.rename(%{other_key: :other_value}, :key, :key_updated, :fallback)
     end
   end
+
+  describe "filter/2" do
+    test "filters map" do
+      assert %{bart: :present} ==
+               Box.Map.filter(%{bart: :present, homer: :missing, lisa: nil}, fn {_key, value} ->
+                 value == :present
+               end)
+
+      assert %{bart: :present, marge: :present} ==
+               Box.Map.filter(
+                 %{bart: :present, homer: :missing, lisa: nil},
+                 %{marge: :present},
+                 fn {_key, value} ->
+                   value == :present
+                 end
+               )
+    end
+  end
+
+  describe "fetch/3" do
+    test "fetches from a map returning a custom error when not found" do
+      colors = %{purple: "Purple"}
+      assert {:error, :wrong_color} = Box.Map.fetch(colors, :yellow, :wrong_color)
+      assert {:ok, "Purple"} = Box.Map.fetch(colors, :purple, :wrong_color)
+    end
+  end
 end

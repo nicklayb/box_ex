@@ -126,4 +126,24 @@ defmodule Box.Map do
     {value, map} = Map.pop(map, from, default)
     Map.put(map, to, value)
   end
+
+  @doc "Filters map keeping the map structure"
+  @spec filter(map(), ({any(), any()} -> boolean()), map()) :: map()
+  def filter(map, initial_map \\ %{}, function) do
+    Enum.reduce(map, initial_map, fn {key, value} = entry, acc ->
+      if function.(entry) do
+        Map.put(acc, key, value)
+      else
+        acc
+      end
+    end)
+  end
+
+  @doc "Fetches a key from a map returning a custom error if not found"
+  @spec fetch(map(), any(), any()) :: {:ok, any()} | {:error, any()}
+  def fetch(map, key, error) do
+    with :error <- Map.fetch(map, key) do
+      {:error, error}
+    end
+  end
 end
