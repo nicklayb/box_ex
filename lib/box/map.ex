@@ -128,7 +128,7 @@ defmodule Box.Map do
   end
 
   @doc "Filters map keeping the map structure"
-  @spec filter(map(), ({any(), any()} -> boolean()), map()) :: map()
+  @spec filter(map(), map(), ({any(), any()} -> boolean())) :: map()
   def filter(map, initial_map \\ %{}, function) do
     Enum.reduce(map, initial_map, fn {key, value} = entry, acc ->
       if function.(entry) do
