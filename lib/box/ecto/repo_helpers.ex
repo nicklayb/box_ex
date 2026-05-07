@@ -34,6 +34,12 @@ if Code.ensure_loaded?(Ecto.Repo) do
           |> to_result()
         end
 
+        def fetch_by(schema, keys) do
+          schema
+          |> get_by(keys)
+          |> to_result()
+        end
+
         defp to_result(result) do
           Box.Result.from_nil(result, :not_found)
         end
