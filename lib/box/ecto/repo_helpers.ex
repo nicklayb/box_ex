@@ -72,6 +72,10 @@ if Code.ensure_loaded?(Ecto.Repo) do
           paginate(query, %{offset: offset + limit, limit: limit, sort_by: sort_by})
         end
 
+        def prev(%Page{query: query, limit: limit, offset: offset, sort_by: sort_by}) do
+          paginate(query, %{offset: offset - limit, limit: limit, sort_by: sort_by})
+        end
+
         def map_paginated_results(%Page{results: results} = page, function) do
           %Page{page | results: function.(results)}
         end
