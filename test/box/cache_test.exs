@@ -160,6 +160,77 @@ defmodule Box.CacheTest do
     end
   end
 
+  describe "observe/2" do
+    test "registers process to monitor variable changes" do
+      key = :some_key
+      Cache.insert(@name, {key, :value})
+      refute_receive({@name, ^key, _})
+      Cache.obsverve(@name, key, self())
+      Cache.insert(@name, {key, :new_value})
+      assert_receive({@name, ^key, {:inserted, :new_value}})
+    end
+
+    test "observes only once" do
+      key = :some_key
+      Cache.insert(@name, {key, :value})
+      refute_receive({@name, ^key, _})
+      Cache.obsverve(@name, key, self())
+      Cache.obsverve(@name, key, self())
+      Cache.obsverve(@name, key, self())
+      Cache.obsverve(@name, key, self())
+      Cache.insert(@name, {key, :new_value})
+      assert_receive({@name, ^key, {:inserted, :new_value}})
+      refute_receive({@name, ^key, {:inserted, :new_value}})
+    end
+
+    test "deobserve when process dies" do
+      test_pid = self()
+
+      child =
+        spawn_link(fn ->
+          handler(%{}, fn
+            message, state ->
+              send(test_pid, {:forward, message})
+              {:continue, state}
+          end)
+        end)
+
+      key = :some_key
+      Cache.obsverve(@name, key, child)
+      Cache.insert(@name, {key, :value})
+      assert_receive({:forward, _})
+      send(child, :stop)
+      refute Process.alive?(child)
+      assert %{monitors: monitors, observers: observers} = :sys.get_state(@name)
+      refute Map.has_key?(observers, key)
+      refute Map.has_key?(monitors, child)
+      Cache.insert(@name, {key, :new_value})
+      refute_receive({:forward, _})
+    end
+
+    test "deobserves explicitly" do
+      key = :some_key
+      Cache.obsverve(@name, key, self())
+      Cache.insert(@name, {key, :new_value})
+      assert_receive({@name, ^key, {:inserted, :new_value}})
+      Cache.deobserve(@name, key, self())
+      refute_receive({@name, ^key, {:inserted, :new_value}})
+    end
+  end
+
+  defp handler(state, function) do
+    receive do
+      :stop ->
+        :ok
+
+      message ->
+        case function.(message, state) do
+          {:continue, state} -> handler(state, function)
+          :stop -> :ok
+        end
+    end
+  end
+
   defp insert_sync(cache, {key, value} = record, options \\ []) do
     Cache.insert(cache, record, options)
 

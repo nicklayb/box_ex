@@ -117,4 +117,12 @@ defmodule Box.Cache do
     function = Keyword.get(options, :cache_match, &(not is_nil(&1)))
     function.(result)
   end
+
+  def obsverve(cache, key_or_keys, owner \\ self()) do
+    GenServer.cast(cache, {:obsverve, key_or_keys, owner})
+  end
+
+  def deobserve(cache, key_or_keys, owner \\ self()) do
+    GenServer.cast(cache, {:deobserve, key_or_keys, owner})
+  end
 end
