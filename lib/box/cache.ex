@@ -118,8 +118,8 @@ defmodule Box.Cache do
     function.(result)
   end
 
-  def obsverve(cache, key_or_keys, owner \\ self()) do
-    GenServer.cast(cache, {:obsverve, key_or_keys, owner})
+  def observe(cache, key_or_keys, owner \\ self()) do
+    GenServer.cast(cache, {:observe, key_or_keys, owner})
   end
 
   def deobserve(cache, key_or_keys, owner \\ self()) do

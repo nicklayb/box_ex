@@ -165,7 +165,7 @@ defmodule Box.CacheTest do
       key = :some_key
       Cache.insert(@name, {key, :value})
       refute_receive({@name, ^key, _})
-      Cache.obsverve(@name, key, self())
+      Cache.observe(@name, key, self())
       Cache.insert(@name, {key, :new_value})
       assert_receive({@name, ^key, {:inserted, :new_value}})
     end
@@ -174,10 +174,10 @@ defmodule Box.CacheTest do
       key = :some_key
       Cache.insert(@name, {key, :value})
       refute_receive({@name, ^key, _})
-      Cache.obsverve(@name, key, self())
-      Cache.obsverve(@name, key, self())
-      Cache.obsverve(@name, key, self())
-      Cache.obsverve(@name, key, self())
+      Cache.observe(@name, key, self())
+      Cache.observe(@name, key, self())
+      Cache.observe(@name, key, self())
+      Cache.observe(@name, key, self())
       Cache.insert(@name, {key, :new_value})
       assert_receive({@name, ^key, {:inserted, :new_value}})
       refute_receive({@name, ^key, {:inserted, :new_value}})
@@ -196,7 +196,7 @@ defmodule Box.CacheTest do
         end)
 
       key = :some_key
-      Cache.obsverve(@name, key, child)
+      Cache.observe(@name, key, child)
       Cache.insert(@name, {key, :value})
       assert_receive({:forward, _})
       send(child, :stop)
@@ -210,7 +210,7 @@ defmodule Box.CacheTest do
 
     test "deobserves explicitly" do
       key = :some_key
-      Cache.obsverve(@name, key, self())
+      Cache.observe(@name, key, self())
       Cache.insert(@name, {key, :new_value})
       assert_receive({@name, ^key, {:inserted, :new_value}})
       Cache.deobserve(@name, key, self())

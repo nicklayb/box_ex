@@ -16,7 +16,7 @@ defmodule Box.Cache.Server do
   @impl GenServer
 
   def handle_info({:DOWN, _monitor_ref, _process, pid, _reason}, state) do
-    keys = obsvered_keys(state, pid)
+    keys = observed_keys(state, pid)
     state = deobserve(state, keys, pid)
     {:noreply, state}
   end
@@ -48,8 +48,8 @@ defmodule Box.Cache.Server do
     {:noreply, state}
   end
 
-  def handle_cast({:obsverve, key_or_keys, caller}, state) do
-    state = obsverve(state, key_or_keys, caller)
+  def handle_cast({:observe, key_or_keys, caller}, state) do
+    state = observe(state, key_or_keys, caller)
 
     {:noreply, state}
   end
@@ -76,7 +76,7 @@ defmodule Box.Cache.Server do
     |> Enum.each(fn caller -> send(caller, {state.name, key, message}) end)
   end
 
-  defp obsvered_keys(state, caller) do
+  defp observed_keys(state, caller) do
     Enum.reduce(state.observers, [], fn {key, callers}, acc ->
       if caller in callers do
         [key | acc]
@@ -89,24 +89,24 @@ defmodule Box.Cache.Server do
   defp deobserve(state, key_or_keys, caller) do
     key_or_keys
     |> List.wrap()
-    |> Enum.reduce(state, &remove_obsverver(&2, &1, caller))
+    |> Enum.reduce(state, &remove_observer(&2, &1, caller))
     |> demonitor(caller)
   end
 
-  defp obsverve(state, key_or_keys, caller) do
+  defp observe(state, key_or_keys, caller) do
     key_or_keys
     |> List.wrap()
-    |> Enum.reduce(state, &add_obsverver(&2, &1, caller))
+    |> Enum.reduce(state, &add_observer(&2, &1, caller))
     |> monitor(caller)
   end
 
-  defp add_obsverver(state, key, caller) do
+  defp add_observer(state, key, caller) do
     observers = Map.update(state.observers, key, [caller], &Enum.uniq([caller | &1]))
 
     %{state | observers: observers}
   end
 
-  defp remove_obsverver(state, key, caller) do
+  defp remove_observer(state, key, caller) do
     observers =
       state.observers
       |> Map.update(key, [], &(&1 -- [caller]))
