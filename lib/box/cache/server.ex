@@ -24,7 +24,7 @@ defmodule Box.Cache.Server do
   @impl GenServer
   def handle_cast({:delete, key}, %{ref: ref} = state) do
     :ets.delete(ref, key)
-    notify_observers(state, {:deleted, key})
+    notify_observers(state, [{:deleted, key}])
     {:noreply, state}
   end
 
