@@ -200,7 +200,11 @@ defmodule Box.CacheTest do
       Cache.insert(@name, {key, :value})
       assert_receive({:forward, _})
       send(child, :stop)
-      refute Process.alive?(child)
+
+      wait_until(fn ->
+        refute Process.alive?(child)
+      end)
+
       assert %{monitors: monitors, observers: observers} = :sys.get_state(@name)
       refute Map.has_key?(observers, key)
       refute Map.has_key?(monitors, child)
