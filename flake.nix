@@ -15,16 +15,26 @@
         pkgs = import nixpkgs {
           inherit system;
         };
+        beamPackages = (
+          elixir:
+          [
+            elixir
+          ]
+          ++ (with pkgs.beam27Packages; [
+            erlang
+            expert
+          ])
+        );
       in
       {
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            elixir
-            erlang_27
-            inotify-tools
-            beamMinimal27Packages.elixir-ls
-            nodejs_22
-          ];
+          buildInputs =
+            with pkgs;
+            [
+              inotify-tools
+              nodejs_22
+            ]
+            ++ beamPackages pkgs.beam27Packages.elixir_1_18;
 
           shellHook = ''
             export MIX_HOME=$PWD/.nix-mix

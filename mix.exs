@@ -34,7 +34,8 @@ defmodule Box.MixProject do
       {:phoenix_html, "~> 4.0", optional: true},
       {:gettext, "~> 0.26.2", optional: true},
       {:phoenix_live_view, "~> 1.0", optional: true},
-      {:ex_doc, "~> 0.37.3", runtime: false, only: ~w(dev test)a}
+      {:ex_doc, "~> 0.37.3", runtime: false, only: ~w(dev test)a},
+      {:req, "~> 0.5", optional: true}
     ]
   end
 end

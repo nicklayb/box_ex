@@ -4,6 +4,7 @@ defmodule Box.BaseCase do
   using do
     quote do
       import Box.Support.Timer
+      alias Box.Test.MockConfig
     end
   end
 end
