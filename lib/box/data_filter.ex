@@ -119,14 +119,18 @@ defmodule Box.DataFilter do
       if field in skipped_fields do
         acc
       else
-        case filter_module.to_query(filter, field, value) do
-          :ignore -> acc
-          {key, value} when is_atom(key) -> Map.put(acc, to_string(key), value)
-          {key, value} -> Map.put(acc, key, value)
-          value -> Map.put(acc, to_string(field), value)
-        end
+        put_query_param(acc, filter, field, value)
       end
     end)
+  end
+
+  defp put_query_param(query_params, %filter_module{} = filter, field, value) do
+    case filter_module.to_query(filter, field, value) do
+      :ignore -> query_params
+      {key, value} when is_atom(key) -> Map.put(query_params, to_string(key), value)
+      {key, value} -> Map.put(query_params, key, value)
+      value -> Map.put(query_params, to_string(field), value)
+    end
   end
 
   def to_query_string(%_{__data_filter__: true} = filter, options) do
