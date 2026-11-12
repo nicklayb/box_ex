@@ -235,7 +235,8 @@ defmodule Box.Color do
 
   @spec parse!(String.t()) :: t()
   def parse!("rgb" <> _ = string) do
-    color =
+    %Color{} =
+      color =
       with :error <- parse_rgb_with_alpha!(string),
            :error <- parse_rgb!(string) do
         raise ArgumentError, "invalid RGB string"
